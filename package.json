@@ -1,0 +1,23 @@
+{
+  "name": "omm",
+  "version": "1.0.0",
+  "description": "Object Model Mapper",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hiroaki-yamamoto/omm.git"
+  },
+  "author": "Hiroaki Yamamoto <hiroaki@hysoftware.net>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/hiroaki-yamamoto/omm/issues"
+  },
+  "homepage": "https://github.com/hiroaki-yamamoto/omm#readme",
+  "devDependencies": {
+    "gulp": "^3.9.1",
+    "hyamamoto-job-toolbox": "^0.1.5"
+  }
+}
