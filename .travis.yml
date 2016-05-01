@@ -1,0 +1,16 @@
+language: python
+python:
+  - 3.5
+services:
+  - "mongodb"
+sudo: false
+cache: "pip"
+install:
+  - "pip install -r requirements.txt"
+script:
+  - "flake8 omm tests"
+  - "radon cc -nc omm tests"
+  - "tox"
+after_success:
+  - "coverage combine python27.coverage python35.coverage"
+  - "coveralls"
