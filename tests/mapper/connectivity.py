@@ -2,7 +2,7 @@
 # coding=utf-8
 
 
-"""Initialization test case."""
+"""Mapper test case."""
 
 import unittest
 

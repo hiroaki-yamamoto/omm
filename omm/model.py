@@ -24,7 +24,7 @@ class Mapper(object):
     @property
     def connected_object(self):
         """Get connected object."""
-        return self._target
+        return getattr(self, "_target", None)
 
     def connect(self, target):
         """
