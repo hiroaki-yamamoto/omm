@@ -3,6 +3,7 @@
 
 """Fields."""
 
+import re
 from functools import reduce
 
 
@@ -27,12 +28,21 @@ class MapField(object):
             return self
         data = obj.connected_object
         attrs = self.target.split(".")
-        if isinstance(data, dict):
-            def lookup_dict(data, attr):
-                return data[attr]
-            return reduce(lookup_dict, attrs, data)
-        else:
-            return reduce(getattr, attrs, data)
+        index_find_pattern = re.compile("\[([0-9])+\]+")
+
+        def lookup(data, attr):
+            index = [
+                int(value) for value in index_find_pattern.findall(attr)
+            ]
+            result = data[
+                index_find_pattern.sub("", attr)
+            ] if isinstance(data, dict) else getattr(
+                data, index_find_pattern.sub("", attr)
+            )
+            if index:
+                result = reduce(lambda v, i: v[i], index, result)
+            return result
+        return reduce(lookup, attrs, data)
 
     @property
     def target(self):

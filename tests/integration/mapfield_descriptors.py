@@ -9,7 +9,7 @@ Note that this spec is INTEGRATION TEST!
 
 import unittest as ut
 
-from .mapdata import SimpleTestMapper
+from .mapdata import SimpleTestMapper, ArrayMapTestSchema
 from omm import MapField
 
 
@@ -55,3 +55,29 @@ class ClsGetTest(ut.TestCase):
         self.assertIsInstance(self.schema.name, MapField)
         self.assertIsInstance(self.schema.age, MapField)
         self.assertIsInstance(self.schema.sex, MapField)
+
+
+class ObjArrayGetTest(ut.TestCase):
+    """Accessed from Mapper object, but target has array (target: obj)."""
+
+    def setUp(self):
+        """Setup the function."""
+        self.data = ArrayMapTestSchema.generate_test_data()
+        self.schema = ArrayMapTestSchema(self.data)
+
+    def test_array(self):
+        """The returned value form the self.schema.array should be True."""
+        self.assertIs(self.schema.array, True)
+
+
+class DictArrayGetTest(ut.TestCase):
+    """Accessed from Mapper object, but traget has array (target: dict)."""
+
+    def setUp(self):
+        """Setup the function."""
+        self.data = ArrayMapTestSchema.generate_test_data(type_dict=True)
+        self.schema = ArrayMapTestSchema(self.data)
+
+    def test_array(self):
+        """The returned value form the self.schema.array should be True."""
+        self.assertIs(self.schema.array, True)
