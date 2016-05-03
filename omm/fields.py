@@ -27,7 +27,12 @@ class MapField(object):
             return self
         data = obj.connected_object
         attrs = self.target.split(".")
-        return reduce(getattr, attrs, data)
+        if isinstance(data, dict):
+            def lookup_dict(data, attr):
+                return data[attr]
+            return reduce(lookup_dict, attrs, data)
+        else:
+            return reduce(getattr, attrs, data)
 
     @property
     def target(self):
