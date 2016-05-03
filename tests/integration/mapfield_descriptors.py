@@ -27,12 +27,6 @@ class ObjectGetTest(ut.TestCase):
         self.assertEqual(self.schema.age, self.data.test.age)
         self.assertEqual(self.schema.sex, self.data.test.sex)
 
-    def test_cls_test(self):
-        """MapField should return itself when it is accessed from class."""
-        self.assertIsInstance(SimpleTestMapper.name, MapField)
-        self.assertIsInstance(SimpleTestMapper.age, MapField)
-        self.assertIsInstance(SimpleTestMapper.sex, MapField)
-
 
 class DictGetTest(ut.TestCase):
     """MapField.__get__ test (dict)."""
@@ -48,8 +42,16 @@ class DictGetTest(ut.TestCase):
         self.assertEqual(self.schema.age, self.data["test"]["age"])
         self.assertEqual(self.schema.sex, self.data["test"]["sex"])
 
+
+class ClsGetTest(ut.TestCase):
+    """MapField.__get__ test (accessed from Mapper class declaration)."""
+
+    def setUp(self):
+        """Setup the function."""
+        self.schema = SimpleTestMapper
+
     def test_cls_test(self):
         """MapField should return itself when it is accessed from class."""
-        self.assertIsInstance(SimpleTestMapper.name, MapField)
-        self.assertIsInstance(SimpleTestMapper.age, MapField)
-        self.assertIsInstance(SimpleTestMapper.sex, MapField)
+        self.assertIsInstance(self.schema.name, MapField)
+        self.assertIsInstance(self.schema.age, MapField)
+        self.assertIsInstance(self.schema.sex, MapField)
