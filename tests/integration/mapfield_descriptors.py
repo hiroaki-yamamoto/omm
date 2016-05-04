@@ -9,7 +9,7 @@ Note that this spec is INTEGRATION TEST!
 
 import unittest as ut
 
-from .mapdata import SimpleTestMapper, ArrayMapTestSchema
+from .mapdata import SimpleTestMapper, DictSimpleTestSchema, ArrayMapTestSchema
 from omm import MapField
 
 
@@ -60,6 +60,28 @@ class DictGetTest(ut.TestCase):
         self.assertEqual(self.schema.name, self.data["test"]["name"])
         self.assertEqual(self.schema.age, self.data["test"]["age"])
         self.assertEqual(self.schema.sex, self.data["test"]["sex"])
+
+
+class DictSetTest(ut.TestCase):
+    """MapField.__set__ test (dict)."""
+
+    def setUp(self):
+        """Setup function."""
+        self.schema = DictSimpleTestSchema()
+
+    def test_set(self):
+        """Setup set."""
+        self.schema.name = "Test"
+        self.schema.age = 28
+        self.schema.sex = None
+
+        self.assertDictEqual({
+            "test": {
+                "name": self.schema.name,
+                "age": self.schema.age,
+                "sex": self.schema.sex
+            }
+        }, self.schema.connected_object)
 
 
 class ClsGetTest(ut.TestCase):

@@ -39,6 +39,12 @@ class SimpleTestMapper(omm.Mapper):
         } if type_dict else gen_obj
 
 
+class DictSimpleTestSchema(SimpleTestMapper):
+    """Dict-based test mapper."""
+
+    asdict = True
+
+
 class ArrayMapTestSchema(omm.Mapper):
     """Array Mapper."""
 

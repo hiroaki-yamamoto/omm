@@ -46,21 +46,28 @@ class MapField(object):
 
     def __set__(self, obj, value):
         """Set descriptor."""
+        asdict = getattr(obj, "asdict", False)
         GeneratedObject = type("GeneratedObject", (object, ), {})
 
         def get_or_create(target, attr):
             try:
-                return getattr(target, attr)
+                return target[attr] if asdict else getattr(target, attr)
             except AttributeError:
                 setattr(target, attr, GeneratedObject())
                 return getattr(target, attr)
+            except KeyError:
+                target[attr] = {}
+                return target[attr]
         if not obj.connected_object:
-            obj.connect(GeneratedObject())
+            obj.connect({} if asdict else GeneratedObject())
         attrs = self.target.split(".")
         target_obj = reduce(
             get_or_create, attrs[:-1], obj.connected_object
         )
-        setattr(target_obj, attrs[-1], value)
+        if asdict:
+            target_obj[attrs[-1]] = value
+        else:
+            setattr(target_obj, attrs[-1], value)
 
     @property
     def target(self):
