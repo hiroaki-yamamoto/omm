@@ -44,6 +44,24 @@ class MapField(object):
             return result
         return reduce(lookup, attrs, data)
 
+    def __set__(self, obj, value):
+        """Set descriptor."""
+        GeneratedObject = type("GeneratedObject", (object, ), {})
+
+        def get_or_create(target, attr):
+            try:
+                return getattr(target, attr)
+            except AttributeError:
+                setattr(target, attr, GeneratedObject())
+                return getattr(target, attr)
+        if not obj.connected_object:
+            obj.connect(GeneratedObject())
+        attrs = self.target.split(".")
+        target_obj = reduce(
+            get_or_create, attrs[:-1], obj.connected_object
+        )
+        setattr(target_obj, attrs[-1], value)
+
     @property
     def target(self):
         """Get the target field."""

@@ -28,6 +28,25 @@ class ObjectGetTest(ut.TestCase):
         self.assertEqual(self.schema.sex, self.data.test.sex)
 
 
+class ObjectSetTest(ut.TestCase):
+    """MapField.__set__ test (object)."""
+
+    def setUp(self):
+        """Setup the function."""
+        self.schema = SimpleTestMapper()
+
+    def test_set(self):
+        """set descriptor should work properly."""
+        self.schema.name = "Test"
+        self.schema.age = 28
+        self.schema.sex = None
+
+        obj = self.schema.connected_object
+        self.assertEqual(obj.test.name, self.schema.name)
+        self.assertEqual(obj.test.age, self.schema.age)
+        self.assertEqual(obj.test.sex, self.schema.sex)
+
+
 class DictGetTest(ut.TestCase):
     """MapField.__get__ test (dict)."""
 
