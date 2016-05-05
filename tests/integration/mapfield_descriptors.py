@@ -111,6 +111,22 @@ class ObjArrayGetTest(ut.TestCase):
         self.assertIs(self.schema.array, True)
 
 
+class ObjectArraySetTest(ut.TestCase):
+    """Unit test for setting value to the mapping field."""
+
+    def setUp(self):
+        """Setup the test."""
+        self.schema = ArrayMapTestSchema()
+
+    def test_array(self):
+        """The connected value should be proper."""
+        self.schema.array = True
+        result = self.schema.connected_object
+        self.assertIsNone(result.test.array[0])
+        self.assertIsNone(result.test.array[1][0])
+        self.assertIs(result.test.array[1][1], True)
+
+
 class DictArrayGetTest(ut.TestCase):
     """Accessed from Mapper object, but traget has array (target: dict)."""
 

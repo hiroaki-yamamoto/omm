@@ -10,6 +10,8 @@ from functools import reduce
 class MapField(object):
     """Normal Map Field."""
 
+    __index_find_pattern__ = re.compile("\[([0-9])+\]+")
+
     def __init__(self, target=None):
         """
         Initialize the class.
@@ -28,16 +30,16 @@ class MapField(object):
             return self
         data = obj.connected_object
         attrs = self.target.split(".")
-        index_find_pattern = re.compile("\[([0-9])+\]+")
 
         def lookup(data, attr):
             index = [
-                int(value) for value in index_find_pattern.findall(attr)
+                int(value)
+                for value in self.__index_find_pattern__.findall(attr)
             ]
             result = data[
-                index_find_pattern.sub("", attr)
+                self.__index_find_pattern__.sub("", attr)
             ] if isinstance(data, dict) else getattr(
-                data, index_find_pattern.sub("", attr)
+                data, self.__index_find_pattern__.sub("", attr)
             )
             if index:
                 result = reduce(lambda v, i: v[i], index, result)
@@ -50,24 +52,36 @@ class MapField(object):
         GeneratedObject = type("GeneratedObject", (object, ), {})
 
         def get_or_create(target, attr):
+            # indexes = [
+            #     int(value)
+            #     for value in self.__index_find_pattern__.findall(attr)
+            # ]
+            attr = self.__index_find_pattern__.sub("", attr)
             try:
-                return target[attr] if asdict else getattr(target, attr)
+                result = target[attr] if asdict else getattr(target, attr)
+                return result
             except AttributeError:
                 setattr(target, attr, GeneratedObject())
                 return getattr(target, attr)
             except KeyError:
                 target[attr] = {}
                 return target[attr]
+
         if not obj.connected_object:
             obj.connect({} if asdict else GeneratedObject())
         attrs = self.target.split(".")
+        # last_indexes = [
+        #     int(value)
+        #     for value in self.__index_find_pattern__.findall(attrs[-1])
+        # ]
+        last_attr = self.__index_find_pattern__.sub("", attrs[-1])
         target_obj = reduce(
             get_or_create, attrs[:-1], obj.connected_object
         )
         if asdict:
-            target_obj[attrs[-1]] = value
+            target_obj[last_attr] = value
         else:
-            setattr(target_obj, attrs[-1], value)
+            setattr(target_obj, last_attr, value)
 
     @property
     def target(self):
