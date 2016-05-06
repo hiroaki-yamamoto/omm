@@ -9,7 +9,10 @@ Note that this spec is INTEGRATION TEST!
 
 import unittest as ut
 
-from .mapdata import SimpleTestMapper, DictSimpleTestSchema, ArrayMapTestSchema
+from .mapdata import (
+    SimpleTestMapper, DictSimpleTestSchema,
+    ArrayMapTestSchema, ArrayMapDictTestSchema
+)
 from omm import MapField
 
 
@@ -111,6 +114,22 @@ class ObjArrayGetTest(ut.TestCase):
         self.assertIs(self.schema.array, True)
 
 
+class ObjectArraySetTest(ut.TestCase):
+    """Unit test for setting value to the mapping field."""
+
+    def setUp(self):
+        """Setup the test."""
+        self.schema = ArrayMapTestSchema()
+
+    def test_array(self):
+        """The connected value should be proper."""
+        self.schema.array = True
+        result = self.schema.connected_object
+        self.assertIsNone(result.test.array[0])
+        self.assertIsNone(result.test.array[1][0])
+        self.assertIs(result.test.array[1][1].correct, True)
+
+
 class DictArrayGetTest(ut.TestCase):
     """Accessed from Mapper object, but traget has array (target: dict)."""
 
@@ -122,3 +141,19 @@ class DictArrayGetTest(ut.TestCase):
     def test_array(self):
         """The returned value form the self.schema.array should be True."""
         self.assertIs(self.schema.array, True)
+
+
+class DictArraySetTest(ut.TestCase):
+    """Unit test for setting value to the mapping field."""
+
+    def setUp(self):
+        """Setup the test."""
+        self.schema = ArrayMapDictTestSchema()
+
+    def test_array(self):
+        """The connected value should be proepr."""
+        self.schema.array = True
+        result = self.schema.connected_object
+        self.assertIsNone(result["test"]["array"][0])
+        self.assertIsNone(result["test"]["array"][1][0])
+        self.assertIs(result["test"]["array"][1][1]["correct"], True)

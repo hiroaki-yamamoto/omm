@@ -86,3 +86,9 @@ class ArrayMapTestSchema(omm.Mapper):
                 [{"correct": False}, {"correct": True}]
             ]}
         } if type_dict else ObjectClass()
+
+
+class ArrayMapDictTestSchema(ArrayMapTestSchema):
+    """Array mapper (asdict)."""
+
+    asdict = True
