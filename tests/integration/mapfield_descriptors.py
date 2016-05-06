@@ -124,7 +124,7 @@ class ObjectArraySetTest(ut.TestCase):
         result = self.schema.connected_object
         self.assertIsNone(result.test.array[0])
         self.assertIsNone(result.test.array[1][0])
-        self.assertIs(result.test.array[1][1], True)
+        self.assertIs(result.test.array[1][1].correct, True)
 
 
 class DictArrayGetTest(ut.TestCase):

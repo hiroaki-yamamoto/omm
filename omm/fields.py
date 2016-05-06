@@ -51,18 +51,33 @@ class MapField(object):
         asdict = getattr(obj, "asdict", False)
         GeneratedObject = type("GeneratedObject", (object, ), {})
 
+        def allocate_array(target, indexes):
+            point = target if not indexes or isinstance(target, list) else []
+            for (num, index) in enumerate(indexes):
+                point += [None] * (index - len(point) + 1)
+                point[index] = GeneratedObject() \
+                    if num + 1 == len(indexes) else []
+                point = point[index]
+            return point
+
         def get_or_create(target, attr):
-            # indexes = [
-            #     int(value)
-            #     for value in self.__index_find_pattern__.findall(attr)
-            # ]
+            indexes = [
+                int(value)
+                for value in self.__index_find_pattern__.findall(attr)
+            ]
             attr = self.__index_find_pattern__.sub("", attr)
             try:
                 result = target[attr] if asdict else getattr(target, attr)
-                return result
+                return allocate_array(result, indexes)
             except AttributeError:
-                setattr(target, attr, GeneratedObject())
-                return getattr(target, attr)
+                result = None
+                if indexes:
+                    setattr(target, attr, [])
+                    result = allocate_array(getattr(target, attr), indexes)
+                else:
+                    setattr(target, attr, GeneratedObject())
+                    result = getattr(target, attr)
+                return result
             except KeyError:
                 target[attr] = {}
                 return target[attr]
