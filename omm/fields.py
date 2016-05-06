@@ -55,8 +55,9 @@ class MapField(object):
             point = target if not indexes or isinstance(target, list) else []
             for (num, index) in enumerate(indexes):
                 point += [None] * (index - len(point) + 1)
-                point[index] = GeneratedObject() \
-                    if num + 1 == len(indexes) else []
+                point[index] = (
+                    {} if asdict else GeneratedObject()
+                ) if num + 1 == len(indexes) else []
                 point = point[index]
             return point
 
@@ -71,16 +72,11 @@ class MapField(object):
                 return allocate_array(result, indexes)
             except AttributeError:
                 result = None
-                if indexes:
-                    setattr(target, attr, [])
-                    result = allocate_array(getattr(target, attr), indexes)
-                else:
-                    setattr(target, attr, GeneratedObject())
-                    result = getattr(target, attr)
-                return result
+                setattr(target, attr, [] if indexes else GeneratedObject())
+                return allocate_array(getattr(target, attr), indexes)
             except KeyError:
-                target[attr] = {}
-                return target[attr]
+                target[attr] = [] if indexes else {}
+                return allocate_array(target[attr], indexes)
 
         if not obj.connected_object:
             obj.connect({} if asdict else GeneratedObject())
