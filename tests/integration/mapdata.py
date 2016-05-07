@@ -49,6 +49,7 @@ class ArrayMapTestSchema(omm.Mapper):
     """Array Mapper."""
 
     array = omm.MapField("test.array[1][1].correct")
+    last_array = omm.MapField("test.array[1][2]")
 
     @staticmethod
     def generate_test_data(type_dict=False):
@@ -74,7 +75,8 @@ class ArrayMapTestSchema(omm.Mapper):
                             type(self).ArrayElement(False)
                         ], [
                             type(self).ArrayElement(False),
-                            type(self).ArrayElement(True)
+                            type(self).ArrayElement(True),
+                            "Hello World"
                         ]
                     ]
 
@@ -83,7 +85,7 @@ class ArrayMapTestSchema(omm.Mapper):
         return {
             "test": {"array": [
                 [{"correct": False}, {"correct": False}],
-                [{"correct": False}, {"correct": True}]
+                [{"correct": False}, {"correct": True}, "Hello World"],
             ]}
         } if type_dict else ObjectClass()
 
