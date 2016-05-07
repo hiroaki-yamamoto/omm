@@ -56,8 +56,8 @@ class MapField(object):
             for (num, index) in enumerate(indexes):
                 point += [None] * (index - len(point) + 1)
                 point[index] = (
-                    {} if asdict else GeneratedObject()
-                    if value is None else value
+                    value if value is not None else {}
+                    if asdict else GeneratedObject()
                 ) if num + 1 == len(indexes) else []
                 point = point[index]
             return point
@@ -91,7 +91,8 @@ class MapField(object):
             get_or_create, attrs[:-1], obj.connected_object
         )
         if asdict:
-            target_obj[last_attr] = value
+            target_obj[last_attr] = [] if last_indexes else value
+            allocate_array(target_obj[last_attr], last_indexes, value)
         else:
             setattr(target_obj, last_attr, [] if last_indexes else value)
             allocate_array(

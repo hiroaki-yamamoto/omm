@@ -85,8 +85,7 @@ class ArrayMapTestSchema(omm.Mapper):
         return {
             "test": {"array": [
                 [{"correct": False}, {"correct": False}],
-                [{"correct": False}, {"correct": True}],
-                "Hello World"
+                [{"correct": False}, {"correct": True}, "Hello World"],
             ]}
         } if type_dict else ObjectClass()
 
