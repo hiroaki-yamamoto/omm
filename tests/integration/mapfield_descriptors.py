@@ -113,6 +113,10 @@ class ObjArrayGetTest(ut.TestCase):
         """The returned value form the self.schema.array should be True."""
         self.assertIs(self.schema.array, True)
 
+    def test_last_array(self):
+        """The returned value should be referencing the proper element."""
+        self.assertEqual(self.schema.last_array, "Hello World")
+
 
 class ObjectArraySetTest(ut.TestCase):
     """Unit test for setting value to the mapping field."""
@@ -129,6 +133,15 @@ class ObjectArraySetTest(ut.TestCase):
         self.assertIsNone(result.test.array[1][0])
         self.assertIs(result.test.array[1][1].correct, True)
 
+    def test_last_array(self):
+        """The connected value should be proper (Last Array Reference)."""
+        self.schema.last_array = "Hello World"
+        result = self.schema.connected_object
+        self.assertIsNone(result.test.array[0])
+        self.assertIsNone(result.test.array[1][0])
+        self.assertIsNone(result.test.array[1][1])
+        self.assertEqual(result.test.array[1][2], "Hello World")
+
 
 class DictArrayGetTest(ut.TestCase):
     """Accessed from Mapper object, but traget has array (target: dict)."""
@@ -141,6 +154,10 @@ class DictArrayGetTest(ut.TestCase):
     def test_array(self):
         """The returned value form the self.schema.array should be True."""
         self.assertIs(self.schema.array, True)
+
+    def test_last_array(self):
+        """The returned value should be referencing the proper element."""
+        self.assertEqual(self.schema.last_array, "Hello World")
 
 
 class DictArraySetTest(ut.TestCase):
@@ -157,3 +174,12 @@ class DictArraySetTest(ut.TestCase):
         self.assertIsNone(result["test"]["array"][0])
         self.assertIsNone(result["test"]["array"][1][0])
         self.assertIs(result["test"]["array"][1][1]["correct"], True)
+
+    def test_last_array(self):
+        """The connected value should be proper (Last Array Reference)."""
+        self.schema.last_array = "Hello World"
+        result = self.schema.connected_object
+        self.assertIsNone(result["test"]["array"][0])
+        self.assertIsNone(result["test"]["array"][1][0])
+        self.assertIsNone(result["test"]["array"][1][1])
+        self.assertEqual(result["test"]["array"][1][2], "Hello World")

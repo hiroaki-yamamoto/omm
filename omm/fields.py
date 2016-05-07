@@ -51,12 +51,13 @@ class MapField(object):
         asdict = getattr(obj, "asdict", False)
         GeneratedObject = type("GeneratedObject", (object, ), {})
 
-        def allocate_array(target, indexes):
+        def allocate_array(target, indexes, value=None):
             point = target if not indexes or isinstance(target, list) else []
             for (num, index) in enumerate(indexes):
                 point += [None] * (index - len(point) + 1)
                 point[index] = (
-                    {} if asdict else GeneratedObject()
+                    value if value is not None else {}
+                    if asdict else GeneratedObject()
                 ) if num + 1 == len(indexes) else []
                 point = point[index]
             return point
@@ -81,18 +82,22 @@ class MapField(object):
         if not obj.connected_object:
             obj.connect({} if asdict else GeneratedObject())
         attrs = self.target.split(".")
-        # last_indexes = [
-        #     int(value)
-        #     for value in self.__index_find_pattern__.findall(attrs[-1])
-        # ]
+        last_indexes = [
+            int(index_str)
+            for index_str in self.__index_find_pattern__.findall(attrs[-1])
+        ]
         last_attr = self.__index_find_pattern__.sub("", attrs[-1])
         target_obj = reduce(
             get_or_create, attrs[:-1], obj.connected_object
         )
         if asdict:
-            target_obj[last_attr] = value
+            target_obj[last_attr] = [] if last_indexes else value
+            allocate_array(target_obj[last_attr], last_indexes, value)
         else:
-            setattr(target_obj, last_attr, value)
+            setattr(target_obj, last_attr, [] if last_indexes else value)
+            allocate_array(
+                getattr(target_obj, last_attr), last_indexes, value
+            )
 
     @property
     def target(self):
