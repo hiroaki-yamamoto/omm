@@ -103,7 +103,6 @@ class MapField(object):
                 target_obj.get(last_attr, None),
                 last_indexes, value
             )
-            allocate_array(target_obj, last_attr, last_indexes, value)
         else:
             setattr(
                 target_obj, last_attr, correct_value(
@@ -111,7 +110,7 @@ class MapField(object):
                     last_indexes, value
                 )
             )
-            allocate_array(target_obj, last_attr, last_indexes, value)
+        allocate_array(target_obj, last_attr, last_indexes, value)
 
     @property
     def target(self):
