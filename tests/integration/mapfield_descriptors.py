@@ -152,7 +152,6 @@ class ObjectArraySetTest(ut.TestCase):
         self.schema.array = True
         self.schema.last_array = "This is a test"
         result = self.schema.connected_object
-        print(result.test.array)
         self.assertIs(result.test.array[0][0].correct, False)
         self.assertIs(result.test.array[0][1].correct, False)
         self.assertIs(result.test.array[1][0].correct, False)
