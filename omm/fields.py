@@ -51,33 +51,41 @@ class MapField(object):
         asdict = getattr(obj, "asdict", False)
         GeneratedObject = type("GeneratedObject", (object, ), {})
 
-        def allocate_array(target, indexes, value=None):
-            point = target if not indexes or isinstance(target, list) else []
+        def allocate_array(target, attr, indexes, value=None):
+            point = target[attr] if asdict else getattr(target, attr)
             for (num, index) in enumerate(indexes):
-                point += [None] * (index - len(point) + 1)
+                point.extend([None] * (index - len(point) + 1))
                 point[index] = (
                     value if value is not None else {}
                     if asdict else GeneratedObject()
-                ) if num + 1 == len(indexes) else []
+                ) if num + 1 == len(indexes) else point[index] if isinstance(
+                    point[index], list
+                ) else []
                 point = point[index]
             return point
+
+        def correct_value(target, indexes, value):
+            return target if isinstance(target, list) \
+                else [] if indexes else value
 
         def get_or_create(target, attr):
             indexes = [
                 int(value)
                 for value in self.__index_find_pattern__.findall(attr)
             ]
-            attr = self.__index_find_pattern__.sub("", attr)
+            actual_attr = self.__index_find_pattern__.sub("", attr)
+            result = None
             try:
-                result = target[attr] if asdict else getattr(target, attr)
-                return allocate_array(result, indexes)
+                result = allocate_array(target, actual_attr, indexes)
             except AttributeError:
-                result = None
-                setattr(target, attr, [] if indexes else GeneratedObject())
-                return allocate_array(getattr(target, attr), indexes)
+                setattr(
+                    target, actual_attr, [] if indexes else GeneratedObject()
+                )
+                result = allocate_array(target, actual_attr, indexes)
             except KeyError:
-                target[attr] = [] if indexes else {}
-                return allocate_array(target[attr], indexes)
+                target[actual_attr] = [] if indexes else {}
+                result = allocate_array(target, actual_attr, indexes)
+            return result
 
         if not obj.connected_object:
             obj.connect({} if asdict else GeneratedObject())
@@ -91,13 +99,19 @@ class MapField(object):
             get_or_create, attrs[:-1], obj.connected_object
         )
         if asdict:
-            target_obj[last_attr] = [] if last_indexes else value
-            allocate_array(target_obj[last_attr], last_indexes, value)
-        else:
-            setattr(target_obj, last_attr, [] if last_indexes else value)
-            allocate_array(
-                getattr(target_obj, last_attr), last_indexes, value
+            target_obj[last_attr] = correct_value(
+                target_obj.get(last_attr, None),
+                last_indexes, value
             )
+            allocate_array(target_obj, last_attr, last_indexes, value)
+        else:
+            setattr(
+                target_obj, last_attr, correct_value(
+                    getattr(target_obj, last_attr, None),
+                    last_indexes, value
+                )
+            )
+            allocate_array(target_obj, last_attr, last_indexes, value)
 
     @property
     def target(self):

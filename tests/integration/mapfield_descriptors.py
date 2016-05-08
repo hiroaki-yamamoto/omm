@@ -123,7 +123,11 @@ class ObjectArraySetTest(ut.TestCase):
 
     def setUp(self):
         """Setup the test."""
-        self.schema = ArrayMapTestSchema()
+        self.Schema = ArrayMapTestSchema
+        self.schema = self.Schema()
+        self.data = self.Schema.generate_test_data()
+        self.data.test.array[1].pop()
+        self.data.test.array[1].pop()
 
     def test_array(self):
         """The connected value should be proper."""
@@ -141,6 +145,18 @@ class ObjectArraySetTest(ut.TestCase):
         self.assertIsNone(result.test.array[1][0])
         self.assertIsNone(result.test.array[1][1])
         self.assertEqual(result.test.array[1][2], "Hello World")
+
+    def test_schema_has_values_partially(self):
+        """The connected value should be proper."""
+        self.schema.connect(self.data)
+        self.schema.array = True
+        self.schema.last_array = "This is a test"
+        result = self.schema.connected_object
+        self.assertIs(result.test.array[0][0].correct, False)
+        self.assertIs(result.test.array[0][1].correct, False)
+        self.assertIs(result.test.array[1][0].correct, False)
+        self.assertIs(result.test.array[1][1].correct, True)
+        self.assertEqual(result.test.array[1][2], "This is a test")
 
 
 class DictArrayGetTest(ut.TestCase):
