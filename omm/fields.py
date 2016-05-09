@@ -56,7 +56,10 @@ class MapField(object):
             if index:
                 result = reduce(lambda v, i: v[i], index, result)
             return result
-        return reduce(lookup, attrs, data)
+        ret = reduce(lookup, attrs, data)
+        if hasattr(self, "get_cast"):
+            ret = self.get_cast(ret)
+        return ret
 
     def __set__(self, obj, value):
         """Set descriptor."""

@@ -66,8 +66,15 @@ class SimpleTestSchemaWithSimpleCast(omm.Mapper):
             def to_dict(self):
                 return {"user": self.user.to_dict()}
 
-        test = Test()
-        return test.to_dict if asdict else test
+        class DataClass(object):
+            def __init__(self):
+                self.test = Test()
+
+            def to_dict(self):
+                return {"test": self.test.to_dict()}
+
+        test = DataClass()
+        return test.to_dict() if asdict else test
 
 
 class DictSimpleTestSchema(SimpleTestMapper):
@@ -119,6 +126,46 @@ class ArrayMapTestSchema(omm.Mapper):
                 [{"correct": False}, {"correct": True}, "Hello World"],
             ]}
         } if type_dict else ObjectClass()
+
+
+class ArrayMapCastingTestSchema(omm.Mapper):
+    """Array mapper test data with casting."""
+
+    class CastObject(object):
+        pass
+
+    cast_object_cls = CastObject
+    name = omm.MapField("users[1][1].name", set_cast=cast_object_cls)
+    age = omm.MapField("users[1][1].age", get_cast=int)
+    lastest_score = omm.MapField("users[1][1].scores[3]", get_cast=int)
+
+    @staticmethod
+    def generate_test_data(asdict=False):
+        """Generate test data."""
+        class NameAge(object):
+            def __init__(self, name, age, scores):
+                self.name = name
+                self.age = age
+                self.scores = scores
+
+            def to_dict(self):
+                return {
+                    "name": self.name,
+                    "age": self.age,
+                    "scores": self.scores
+                }
+
+        class Users(object):
+            def __init__(self):
+                self.users = [
+                    None,
+                    [None, NameAge("test", "119", ["g", "gk", "gi", "10"])]
+                ]
+
+            def to_dict(self):
+                return {"users": [None, [None, self.users[1][1].to_dict()]]}
+        users = Users()
+        return users.to_dict() if asdict else users
 
 
 class ArrayMapDictTestSchema(ArrayMapTestSchema):
