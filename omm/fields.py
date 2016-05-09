@@ -12,15 +12,27 @@ class MapField(object):
 
     __index_find_pattern__ = re.compile("\[([0-9])+\]+")
 
-    def __init__(self, target=None):
+    def __init__(self, target=None, **kwargs):
         """
         Initialize the class.
 
         Parameters:
             target: The field to bind. Not that you can bind child field by
                 using dot-notation.
+
+        Keyword Arguments:
+            set_cast: This is called when the value is set, and the value is
+                casted into the type specified by this argument. This argument
+                should be callable. By default, a class that inherits object
+                is used.
+            get_cast: This is called when getting the value, and the returned
+                value is casted into the type specified by this argument.
+                This argument should be callable.
+            (Other arguments): They are treated as meta-data.
         """
         self.target = target
+        for (attr, value) in kwargs.items():
+            setattr(self, attr, value)
 
     def __get__(self, obj, cls=None):
         """Get descriptor."""

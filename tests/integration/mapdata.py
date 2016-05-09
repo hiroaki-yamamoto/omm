@@ -39,6 +39,37 @@ class SimpleTestMapper(omm.Mapper):
         } if type_dict else gen_obj
 
 
+class SimpleTestSchemaWithSimpleCast(omm.Mapper):
+    """Simple Test Data with casting."""
+
+    class CastingClass(object):
+        pass
+    cast_cls = CastingClass
+    name = omm.MapField("test.user.name", set_cast=cast_cls)
+    age = omm.MapField("test.user.age", get_cast=int)
+
+    @staticmethod
+    def generate_test_data(asdict=False):
+        """Generate test data."""
+        class User(object):
+            def __init__(self):
+                self.name = "Test Example"
+                self.age = "199"
+
+            def to_dict(self):
+                return {"name": self.name, "age": self.age}
+
+        class Test(object):
+            def __init__(self):
+                self.user = User()
+
+            def to_dict(self):
+                return {"user": self.user.to_dict()}
+
+        test = Test()
+        return test.to_dict if asdict else test
+
+
 class DictSimpleTestSchema(SimpleTestMapper):
     """Dict-based test mapper."""
 
