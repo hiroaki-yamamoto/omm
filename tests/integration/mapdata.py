@@ -42,10 +42,7 @@ class SimpleTestMapper(omm.Mapper):
 class SimpleTestSchemaWithSimpleCast(omm.Mapper):
     """Simple Test Data with casting."""
 
-    class CastingClass(object):
-        pass
-    cast_cls = CastingClass
-    name = omm.MapField("test.user.name", set_cast=cast_cls)
+    name = omm.MapField("test.user.name", set_cast=str)
     age = omm.MapField("test.user.age", get_cast=int)
 
     @staticmethod
@@ -78,6 +75,12 @@ class SimpleTestSchemaWithSimpleCast(omm.Mapper):
 
 
 class DictSimpleTestSchema(SimpleTestMapper):
+    """Dict-based test mapper."""
+
+    asdict = True
+
+
+class DictSimpleTestSchemaWithSimpleCast(SimpleTestSchemaWithSimpleCast):
     """Dict-based test mapper."""
 
     asdict = True
@@ -131,11 +134,7 @@ class ArrayMapTestSchema(omm.Mapper):
 class ArrayMapCastingTestSchema(omm.Mapper):
     """Array mapper test data with casting."""
 
-    class CastObject(object):
-        pass
-
-    cast_object_cls = CastObject
-    name = omm.MapField("users[1][1].name", set_cast=cast_object_cls)
+    name = omm.MapField("users[1][1].name", set_cast=str)
     age = omm.MapField("users[1][1].age", get_cast=int)
     lastest_score = omm.MapField("users[1][1].scores[3]", get_cast=int)
 
@@ -169,6 +168,12 @@ class ArrayMapCastingTestSchema(omm.Mapper):
 
 
 class ArrayMapDictTestSchema(ArrayMapTestSchema):
+    """Array mapper (asdict)."""
+
+    asdict = True
+
+
+class ArrayMapDictCastingTestSchema(ArrayMapCastingTestSchema):
     """Array mapper (asdict)."""
 
     asdict = True

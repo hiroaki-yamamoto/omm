@@ -116,13 +116,17 @@ class MapField(object):
         if asdict:
             target_obj[last_attr] = correct_value(
                 target_obj.get(last_attr, None),
-                last_indexes, value
+                last_indexes,
+                self.set_cast(value)
+                if hasattr(self, "set_cast") else value
             )
         else:
             setattr(
                 target_obj, last_attr, correct_value(
                     getattr(target_obj, last_attr, None),
-                    last_indexes, value
+                    last_indexes,
+                    self.set_cast(value)
+                    if hasattr(self, "set_cast") else value
                 )
             )
         allocate_array(target_obj, last_attr, last_indexes, value)
