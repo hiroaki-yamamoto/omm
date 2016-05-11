@@ -79,9 +79,22 @@ class MapField(object):
                 point = point[index]
             return point
 
+        def cast(value, index):
+            ret = None
+            try:
+                ret = self.set_cast[index](value)
+            except TypeError:
+                ret = self.set_cast(value)
+            except AttributeError:
+                ret = value
+            return ret
+
         def correct_value(target, indexes, value):
+            result_value = value
+            if hasattr(self, "set_cast"):
+                result_value = cast(result_value, -1)
             return target if isinstance(target, list) \
-                else [] if indexes else value
+                else [] if indexes else result_value
 
         def get_or_create(target, attr):
             indexes = [
@@ -116,17 +129,13 @@ class MapField(object):
         if asdict:
             target_obj[last_attr] = correct_value(
                 target_obj.get(last_attr, None),
-                last_indexes,
-                self.set_cast(value)
-                if hasattr(self, "set_cast") else value
+                last_indexes, value
             )
         else:
             setattr(
                 target_obj, last_attr, correct_value(
                     getattr(target_obj, last_attr, None),
-                    last_indexes,
-                    self.set_cast(value)
-                    if hasattr(self, "set_cast") else value
+                    last_indexes, value
                 )
             )
         allocate_array(target_obj, last_attr, last_indexes, value)

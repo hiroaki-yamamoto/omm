@@ -74,6 +74,31 @@ class SimpleTestSchemaWithSimpleCast(omm.Mapper):
         return test.to_dict() if asdict else test
 
 
+class SimpleTestSchemaWithComplexCast(omm.Mapper):
+    """Object based test mapper with complex casting."""
+
+    GeneratedObject = type("GeneratedObject", (object, ), {})
+    name = omm.MapField(
+        "test.user.name",
+        set_cast=[GeneratedObject, dict, GeneratedObject, str]
+    )
+
+    # @staticmethod
+    # def generate_test_data(asdict=False):
+    #     class NameObject(object):
+    #         def __init__(self):
+    #             self.name = 1195
+    #         def to_dict(self):
+    #             return {"name": self.name}
+    #     class Result(object):
+    #         def __init__(self):
+    #             self.test = {"user": NameObject()}
+    #         def to_dict(self):
+    #             return {"test": {"user": self.test["user"].to_dict()}}
+    #     result = Result()
+    #     return result.to_dict() if asdict else result
+
+
 class DictSimpleTestSchema(SimpleTestMapper):
     """Dict-based test mapper."""
 

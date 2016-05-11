@@ -7,7 +7,8 @@ from unittest import TestCase
 
 from ..mapdata import (
     SimpleTestSchemaWithSimpleCast, ArrayMapCastingTestSchema,
-    DictSimpleTestSchemaWithSimpleCast, ArrayMapDictCastingTestSchema
+    DictSimpleTestSchemaWithSimpleCast, ArrayMapDictCastingTestSchema,
+    SimpleTestSchemaWithComplexCast
 )
 
 
@@ -36,6 +37,24 @@ class ObjectBasedSimpleCastingTest(TestCase):
         self.assertIsInstance(
             self.schema.connected_object.test.user.name, str
         )
+
+
+class ObjectBasedComplexCastingTest(TestCase):
+    """Complex casting test for object-based connection."""
+
+    def setUp(self):
+        """Setup function."""
+        self.Schema = SimpleTestSchemaWithComplexCast
+        self.schema = self.Schema()
+
+    def test_set(self):
+        """The objects should be typed properly."""
+        self.schema.name = 189
+        result = self.schema.connected_object
+        self.assertIsInstance(result, self.Schema.GeneratedObject)
+        self.assertIsInstance(result.test, dict)
+        self.assertIsInstance(result.test["user"], self.Schema.GeneratedObject)
+        self.assertIsInstance(result.test["user"].name, str)
 
 
 class ObjectBasedArrayCastingTest(TestCase):
