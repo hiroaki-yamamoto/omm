@@ -74,7 +74,7 @@ class SimpleTestSchemaWithSimpleCast(omm.Mapper):
         return test.to_dict() if asdict else test
 
 
-class SimpleTestSchemaWithComplexCast(omm.Mapper):
+class SimpleTestSchemaWithComplexCast1(omm.Mapper):
     """Object based test mapper with complex casting."""
 
     GeneratedObject = type("GeneratedObject", (object, ), {})

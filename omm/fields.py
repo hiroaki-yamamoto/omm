@@ -5,6 +5,7 @@
 
 import re
 from functools import reduce
+from .helper import reduce_with_index
 
 
 class MapField(object):
@@ -65,38 +66,48 @@ class MapField(object):
         """Set descriptor."""
         asdict = getattr(obj, "asdict", False)
         GeneratedObject = type("GeneratedObject", (object, ), {})
+        NotSpecifiedYet = type("NotSpecifiedYet", (object, ), {})
 
-        def allocate_array(target, attr, indexes, value=None):
-            point = target[attr] if asdict else getattr(target, attr)
+        def cast_type(index, default=NotSpecifiedYet, index_only=False):
+            ret = None
+            try:
+                ret = self.set_cast[index]
+            except TypeError as e:
+                if index_only and default is NotSpecifiedYet:
+                    raise e
+                ret = default if index_only else self.set_cast
+            except AttributeError as e:
+                if default is NotSpecifiedYet:
+                    raise e
+                ret = default
+            return ret
+
+        def correct_value(target, indexes, value):
+            result_value = value
+            if hasattr(self, "set_cast"):
+                cast = cast_type(-1, None)
+                result_value = cast(result_value) if cast is not None \
+                    else result_value
+            return target if isinstance(target, list) \
+                else [] if indexes else result_value
+
+        def allocate_array(target, attr, current_position,
+                           indexes, value=None):
+            point = target[attr] if isinstance(target, dict) \
+                else getattr(target, attr)
             for (num, index) in enumerate(indexes):
+                cast = cast_type(current_position + 1, GeneratedObject, True)
                 point.extend([None] * (index - len(point) + 1))
                 point[index] = (
                     value if value is not None else {}
-                    if asdict else GeneratedObject()
+                    if asdict else cast()
                 ) if num + 1 == len(indexes) else point[index] if isinstance(
                     point[index], list
                 ) else []
                 point = point[index]
             return point
 
-        def cast(value, index):
-            ret = None
-            try:
-                ret = self.set_cast[index](value)
-            except TypeError:
-                ret = self.set_cast(value)
-            except AttributeError:
-                ret = value
-            return ret
-
-        def correct_value(target, indexes, value):
-            result_value = value
-            if hasattr(self, "set_cast"):
-                result_value = cast(result_value, -1)
-            return target if isinstance(target, list) \
-                else [] if indexes else result_value
-
-        def get_or_create(target, attr):
+        def get_or_create(target, attr, cur_pos):
             indexes = [
                 int(value)
                 for value in self.__index_find_pattern__.findall(attr)
@@ -104,29 +115,36 @@ class MapField(object):
             actual_attr = self.__index_find_pattern__.sub("", attr)
             result = None
             try:
-                result = allocate_array(target, actual_attr, indexes)
+                result = allocate_array(target, actual_attr, cur_pos, indexes)
             except AttributeError:
                 setattr(
-                    target, actual_attr, [] if indexes else GeneratedObject()
+                    target, actual_attr,
+                    [] if indexes else cast_type(
+                        cur_pos + 1, GeneratedObject
+                    )()
                 )
-                result = allocate_array(target, actual_attr, indexes)
+                result = allocate_array(target, actual_attr, cur_pos, indexes)
             except KeyError:
-                target[actual_attr] = [] if indexes else {}
-                result = allocate_array(target, actual_attr, indexes)
+                target[actual_attr] = [] if indexes else cast_type(
+                    cur_pos + 1, dict
+                )()
+                result = allocate_array(target, actual_attr, cur_pos, indexes)
             return result
 
         if not obj.connected_object:
-            obj.connect({} if asdict else GeneratedObject())
+            obj.connect(
+                {} if asdict else cast_type(0, GeneratedObject)()
+            )
         attrs = self.target.split(".")
         last_indexes = [
             int(index_str)
             for index_str in self.__index_find_pattern__.findall(attrs[-1])
         ]
         last_attr = self.__index_find_pattern__.sub("", attrs[-1])
-        target_obj = reduce(
+        target_obj = reduce_with_index(
             get_or_create, attrs[:-1], obj.connected_object
         )
-        if asdict:
+        if isinstance(target_obj, dict):
             target_obj[last_attr] = correct_value(
                 target_obj.get(last_attr, None),
                 last_indexes, value
@@ -138,7 +156,7 @@ class MapField(object):
                     last_indexes, value
                 )
             )
-        allocate_array(target_obj, last_attr, last_indexes, value)
+        allocate_array(target_obj, last_attr, -1, last_indexes, value)
 
     @property
     def target(self):

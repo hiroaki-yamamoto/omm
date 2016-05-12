@@ -8,7 +8,7 @@ from unittest import TestCase
 from ..mapdata import (
     SimpleTestSchemaWithSimpleCast, ArrayMapCastingTestSchema,
     DictSimpleTestSchemaWithSimpleCast, ArrayMapDictCastingTestSchema,
-    SimpleTestSchemaWithComplexCast
+    SimpleTestSchemaWithComplexCast1
 )
 
 
@@ -44,7 +44,7 @@ class ObjectBasedComplexCastingTest(TestCase):
 
     def setUp(self):
         """Setup function."""
-        self.Schema = SimpleTestSchemaWithComplexCast
+        self.Schema = SimpleTestSchemaWithComplexCast1
         self.schema = self.Schema()
 
     def test_set(self):
