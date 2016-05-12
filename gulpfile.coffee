@@ -4,7 +4,7 @@ toolbox = require "hyamamoto-job-toolbox"
 toolbox.python "", "omm", [
   "--with-coverage",
   "--cover-erase",
-  "--cover-package=app",
+  "--cover-package=omm",
   "--all"
 ]
 
