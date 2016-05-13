@@ -191,19 +191,19 @@ class ArrayMapCastingTestSchema(omm.Mapper):
 class ArrayMapComplexCastingTestSchema(omm.Mapper):
     """Array map test casting schema (complex version)."""
 
-    TestList1 = type("TestList1", (list, ), {})
-    TestList2 = type("TestList2", (list, ), {})
+    StartObj = type("StartObj", (object, ), {})
+    Users = type("Users", (list, ), {})
+    UserProfiles = type("UserProfiles", (list, ), {})
+    Profile = type("Profile", (object, ), {})
     TestObj = type("TestObj", (object, ), {})
     InfoObj = type("InfoObj", (dict, ), {})
 
     name = omm.MapField(
         "test.users[0][1].info.name",
-        set_cast=[TestObj, TestList1, TestList2, InfoObj]
+        set_cast=[
+            StartObj, TestObj, Users, UserProfiles, Profile, InfoObj, str
+        ]
     )
-
-    def __init__(self):
-        """Init the class."""
-        raise NotImplementedError()
 
 
 class ArrayMapDictTestSchema(ArrayMapTestSchema):

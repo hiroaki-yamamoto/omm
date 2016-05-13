@@ -95,6 +95,11 @@ class MapField(object):
             cast = self._cast_type(
                 current_position + 1, self.__GeneratedObject__, True
             )
+            # array_cast = self._cast_type(
+            #     current_position + num + 1, list, True
+            # )
+            # if not issubclass(array_cast, list):
+            #     raise TypeError("Set a class inherits list.")
             point.extend([None] * (index - len(point) + 1))
             point[index] = (
                 value if value is not None else {}
@@ -122,19 +127,18 @@ class MapField(object):
                     asdict, target, actual_attr, cur_pos, indexes
                 )
             except AttributeError:
+                cast = self._cast_type(cur_pos + 1, GeneratedObject)
                 setattr(
                     target, actual_attr,
-                    [] if indexes else self._cast_type(
-                        cur_pos + 1, GeneratedObject
-                    )()
+                    [] if indexes and not issubclass(cast, list) else cast()
                 )
                 result = self.__allocate_array(
                     asdict, target, actual_attr, cur_pos, indexes
                 )
             except KeyError:
-                target[actual_attr] = [] if indexes else self._cast_type(
-                    cur_pos + 1, dict
-                )()
+                cast = self._cast_type(cur_pos + 1, dict)
+                target[actual_attr] = [
+                ] if indexes and not issubclass(cast, list) else cast()
                 result = self.__allocate_array(
                     asdict, target, actual_attr, cur_pos, indexes
                 )

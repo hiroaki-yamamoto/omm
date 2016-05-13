@@ -8,8 +8,8 @@ from unittest import TestCase
 from ..mapdata import (
     SimpleTestSchemaWithSimpleCast, ArrayMapCastingTestSchema,
     DictSimpleTestSchemaWithSimpleCast, ArrayMapDictCastingTestSchema,
-    SimpleTestSchemaWithComplexCast1, SimpleTestSchemaWithComplexCast2
-    # ArrayMapComplexCastingTestSchema
+    SimpleTestSchemaWithComplexCast1, SimpleTestSchemaWithComplexCast2,
+    ArrayMapComplexCastingTestSchema
 )
 
 
@@ -102,6 +102,35 @@ class ObjectBasedArrayCastingTest(TestCase):
         self.assertIsInstance(
             self.schema.connected_object.users[1][1].name, str
         )
+
+
+# ArrayMapComplexCastingTestSchema
+class ObjectBasedArrayComplexCastingTest(TestCase):
+    """Test for complex casting with array."""
+
+    def setUp(self):
+        """Setup function."""
+        self.Schema = ArrayMapComplexCastingTestSchema
+        self.schema = self.Schema()
+
+    def test_setter(self):
+        """
+        The stored value should be properly.
+
+        Calling setter descriptor, the value should be stored with
+        proper values, including its parents.
+        """
+        self.schema.name = "test"
+        result = self.schema.connected_object
+        self.assertIsInstance(result, self.Schema.StartObj)
+        self.assertIsInstance(result.test, self.Schema.TestObj)
+        self.assertIsInstance(result.test.users, self.Schema.Users)
+        self.assertIsInstance(result.test.users[0], self.Schema.UserProfiles)
+        self.assertIsInstance(result.test.users[0][1], self.Schema.Profile)
+        self.assertIsInstance(
+            result.test.users[0][1].info, self.Schema.InfoObj
+        )
+        self.assertIsInstance(result.test.users[0][1].info["name"], str)
 
 
 class DictBasedSimpleCastingTest(TestCase):
