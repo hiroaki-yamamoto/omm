@@ -13,9 +13,12 @@ toolbox.python "", "omm", [
 gulp.task "test", ["python.tox"], ->
   # combine coverage
   toolbox.virtualenv(
-    "coverage combine python27.coverage python35.coverage"
+    "coverage erase"
   ).then(
-    -> toolbox.virtualenv("coverage report -m")
+    -> toolbox.virtualenv "coverage combine python27.coverage
+                           python35.coverage"
+  ).then(
+    -> toolbox.virtualenv "coverage report -m"
   )
 gulp.task "clean", ->
   q.nfcall(rimraf, "?(tests|omm)/**/?(*.pyc|__pycache__)")

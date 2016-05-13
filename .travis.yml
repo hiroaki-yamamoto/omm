@@ -12,5 +12,6 @@ script:
   - "radon cc -nc omm tests"
   - "tox"
 after_success:
+  - "coverage erase"
   - "coverage combine python27.coverage python35.coverage"
   - "coveralls"
