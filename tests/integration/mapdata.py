@@ -77,26 +77,22 @@ class SimpleTestSchemaWithSimpleCast(omm.Mapper):
 class SimpleTestSchemaWithComplexCast1(omm.Mapper):
     """Object based test mapper with complex casting."""
 
+    TestObj1 = type("TestObj1", (object, ), {})
+    TestObj2 = type("TestObj2", (object, ), {})
+    name = omm.MapField(
+        "test.user.name",
+        set_cast=[TestObj1, dict, TestObj2, str]
+    )
+
+
+class SimpleTestSchemaWithComplexCast2(omm.Mapper):
+    """Object based test mapper with complex casting."""
+
     GeneratedObject = type("GeneratedObject", (object, ), {})
     name = omm.MapField(
         "test.user.name",
-        set_cast=[GeneratedObject, dict, GeneratedObject, str]
+        set_cast=[dict, GeneratedObject, dict, str]
     )
-
-    # @staticmethod
-    # def generate_test_data(asdict=False):
-    #     class NameObject(object):
-    #         def __init__(self):
-    #             self.name = 1195
-    #         def to_dict(self):
-    #             return {"name": self.name}
-    #     class Result(object):
-    #         def __init__(self):
-    #             self.test = {"user": NameObject()}
-    #         def to_dict(self):
-    #             return {"test": {"user": self.test["user"].to_dict()}}
-    #     result = Result()
-    #     return result.to_dict() if asdict else result
 
 
 class DictSimpleTestSchema(SimpleTestMapper):
@@ -190,6 +186,24 @@ class ArrayMapCastingTestSchema(omm.Mapper):
                 return {"users": [None, [None, self.users[1][1].to_dict()]]}
         users = Users()
         return users.to_dict() if asdict else users
+
+
+class ArrayMapComplexCastingTestSchema(omm.Mapper):
+    """Array map test casting schema (complex version)."""
+
+    TestList1 = type("TestList1", (list, ), {})
+    TestList2 = type("TestList2", (list, ), {})
+    TestObj = type("TestObj", (object, ), {})
+    InfoObj = type("InfoObj", (dict, ), {})
+
+    name = omm.MapField(
+        "test.users[0][1].info.name",
+        set_cast=[TestObj, TestList1, TestList2, InfoObj]
+    )
+
+    def __init__(self):
+        """Init the class."""
+        raise NotImplementedError()
 
 
 class ArrayMapDictTestSchema(ArrayMapTestSchema):

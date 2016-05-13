@@ -8,7 +8,8 @@ from unittest import TestCase
 from ..mapdata import (
     SimpleTestSchemaWithSimpleCast, ArrayMapCastingTestSchema,
     DictSimpleTestSchemaWithSimpleCast, ArrayMapDictCastingTestSchema,
-    SimpleTestSchemaWithComplexCast1
+    SimpleTestSchemaWithComplexCast1, SimpleTestSchemaWithComplexCast2
+    # ArrayMapComplexCastingTestSchema
 )
 
 
@@ -51,10 +52,28 @@ class ObjectBasedComplexCastingTest(TestCase):
         """The objects should be typed properly."""
         self.schema.name = 189
         result = self.schema.connected_object
-        self.assertIsInstance(result, self.Schema.GeneratedObject)
+        self.assertIsInstance(result, self.Schema.TestObj1)
         self.assertIsInstance(result.test, dict)
-        self.assertIsInstance(result.test["user"], self.Schema.GeneratedObject)
+        self.assertIsInstance(result.test["user"], self.Schema.TestObj2)
         self.assertIsInstance(result.test["user"].name, str)
+
+
+class ObjectBasedComplexCastingTestWithFirstDict(TestCase):
+    """Complex casting test for object-based connection (2nd version)."""
+
+    def setUp(self):
+        """Setup function."""
+        self.Schema = SimpleTestSchemaWithComplexCast2
+        self.schema = self.Schema()
+
+    def test_set(self):
+        """The objects should be typed properly."""
+        self.schema.name = 189
+        result = self.schema.connected_object
+        self.assertIsInstance(result, dict)
+        self.assertIsInstance(result["test"], self.Schema.GeneratedObject)
+        self.assertIsInstance(result["test"].user, dict)
+        self.assertIsInstance(result["test"].user["name"], str)
 
 
 class ObjectBasedArrayCastingTest(TestCase):
