@@ -64,8 +64,7 @@ class MapField(object):
             ret = self.get_cast(ret)
         return ret
 
-    def __cast_type(self, index,
-                    default=__NotSpecifiedYet__, index_only=False):
+    def _cast_type(self, index, default=__NotSpecifiedYet__, index_only=False):
         ret = None
         try:
             ret = self.set_cast[index]
@@ -82,9 +81,9 @@ class MapField(object):
     def __correct_value(self, target, indexes, value):
         result_value = value
         if hasattr(self, "set_cast"):
-            cast = self.__cast_type(-1, None)
-            result_value = cast(result_value) if cast is not None \
-                else result_value
+            cast = self._cast_type(-1, None)
+            if cast is not None:
+                result_value = cast(result_value)
         return target if isinstance(target, list) \
             else [] if indexes else result_value
 
@@ -93,7 +92,7 @@ class MapField(object):
         point = target[attr] if isinstance(target, dict) \
             else getattr(target, attr)
         for (num, index) in enumerate(indexes):
-            cast = self.__cast_type(
+            cast = self._cast_type(
                 current_position + 1, self.__GeneratedObject__, True
             )
             point.extend([None] * (index - len(point) + 1))
@@ -125,7 +124,7 @@ class MapField(object):
             except AttributeError:
                 setattr(
                     target, actual_attr,
-                    [] if indexes else self.__cast_type(
+                    [] if indexes else self._cast_type(
                         cur_pos + 1, GeneratedObject
                     )()
                 )
@@ -133,7 +132,7 @@ class MapField(object):
                     asdict, target, actual_attr, cur_pos, indexes
                 )
             except KeyError:
-                target[actual_attr] = [] if indexes else self.__cast_type(
+                target[actual_attr] = [] if indexes else self._cast_type(
                     cur_pos + 1, dict
                 )()
                 result = self.__allocate_array(
@@ -143,7 +142,7 @@ class MapField(object):
 
         if not obj.connected_object:
             obj.connect(
-                {} if asdict else self.__cast_type(0, GeneratedObject)()
+                {} if asdict else self._cast_type(0, GeneratedObject)()
             )
         attrs = self.target.split(".")
         last_indexes = [
