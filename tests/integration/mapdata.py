@@ -107,6 +107,18 @@ class DictSimpleTestSchemaWithSimpleCast(SimpleTestSchemaWithSimpleCast):
     asdict = True
 
 
+class DictSimpleTestSchemaWithComplexCast1(SimpleTestSchemaWithComplexCast1):
+    """Dict-based test mapper."""
+
+    asdict = True
+
+
+class DictSimpleTestSchemaWithComplexCast2(SimpleTestSchemaWithComplexCast2):
+    """Dict-based test mapper."""
+
+    asdict = True
+
+
 class ArrayMapTestSchema(omm.Mapper):
     """Array Mapper."""
 

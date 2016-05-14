@@ -9,7 +9,8 @@ from ..mapdata import (
     SimpleTestSchemaWithSimpleCast, ArrayMapCastingTestSchema,
     DictSimpleTestSchemaWithSimpleCast, ArrayMapDictCastingTestSchema,
     SimpleTestSchemaWithComplexCast1, SimpleTestSchemaWithComplexCast2,
-    ArrayMapComplexCastingTestSchema
+    ArrayMapComplexCastingTestSchema, DictSimpleTestSchemaWithComplexCast1,
+    DictSimpleTestSchemaWithComplexCast2
 )
 
 
@@ -157,6 +158,42 @@ class DictBasedSimpleCastingTest(TestCase):
         self.assertIsInstance(
             self.schema.connected_object["test"]["user"]["name"], str
         )
+
+
+class DictBasedComplexCastingTest(TestCase):
+    """Complex casting test for dict-based connection."""
+
+    def setUp(self):
+        """Setup function."""
+        self.Schema = DictSimpleTestSchemaWithComplexCast1
+        self.schema = self.Schema()
+
+    def test_set(self):
+        """The objects should be typed properly."""
+        self.schema.name = 189
+        result = self.schema.connected_object
+        self.assertIsInstance(result, self.Schema.TestObj1)
+        self.assertIsInstance(result.test, dict)
+        self.assertIsInstance(result.test["user"], self.Schema.TestObj2)
+        self.assertIsInstance(result.test["user"].name, str)
+
+
+class DictBasedComplexCastingTestWithFirstDict(TestCase):
+    """Complex casting test for dict-based connection (2nd version)."""
+
+    def setUp(self):
+        """Setup function."""
+        self.Schema = DictSimpleTestSchemaWithComplexCast2
+        self.schema = self.Schema()
+
+    def test_set(self):
+        """The objects should be typed properly."""
+        self.schema.name = 189
+        result = self.schema.connected_object
+        self.assertIsInstance(result, dict)
+        self.assertIsInstance(result["test"], self.Schema.GeneratedObject)
+        self.assertIsInstance(result["test"].user, dict)
+        self.assertIsInstance(result["test"].user["name"], str)
 
 
 class DictBasedArrayCastingTest(TestCase):

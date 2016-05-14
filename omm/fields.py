@@ -93,12 +93,12 @@ class MapField(object):
             else getattr(target, attr)
         for (num, index) in enumerate(indexes):
             cast = self._cast_type(
-                current_position + num + 2, self.__GeneratedObject__, True
+                current_position + num + 2,
+                dict if asdict else self.__GeneratedObject__, True
             )
             point.extend([None] * (index - len(point) + 1))
             point[index] = (
-                value if value is not None else {}
-                if asdict else cast()
+                value if value is not None else cast()
             ) if num + 1 == len(indexes) else point[index] if isinstance(
                 point[index], list
             ) else cast() if issubclass(cast, list) else []
@@ -142,7 +142,7 @@ class MapField(object):
 
         if not obj.connected_object:
             obj.connect(
-                {} if asdict else self._cast_type(0, GeneratedObject)()
+                self._cast_type(0, dict if asdict else GeneratedObject)()
             )
         attrs = self.target.split(".")
         last_indexes = [
