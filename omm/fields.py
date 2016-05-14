@@ -93,20 +93,15 @@ class MapField(object):
             else getattr(target, attr)
         for (num, index) in enumerate(indexes):
             cast = self._cast_type(
-                current_position + 1, self.__GeneratedObject__, True
+                current_position + num + 2, self.__GeneratedObject__, True
             )
-            # array_cast = self._cast_type(
-            #     current_position + num + 1, list, True
-            # )
-            # if not issubclass(array_cast, list):
-            #     raise TypeError("Set a class inherits list.")
             point.extend([None] * (index - len(point) + 1))
             point[index] = (
                 value if value is not None else {}
                 if asdict else cast()
             ) if num + 1 == len(indexes) else point[index] if isinstance(
                 point[index], list
-            ) else []
+            ) else cast() if issubclass(cast, list) else []
             point = point[index]
         return point
 
@@ -115,7 +110,8 @@ class MapField(object):
         asdict = getattr(obj, "asdict", False)
         GeneratedObject = type("GeneratedObject", (object, ), {})
 
-        def get_or_create(target, attr, cur_pos):
+        def get_or_create(target_delay, attr, cur_pos):
+            (target, delay) = target_delay
             indexes = [
                 int(value)
                 for value in self.__index_find_pattern__.findall(attr)
@@ -127,7 +123,7 @@ class MapField(object):
                     asdict, target, actual_attr, cur_pos, indexes
                 )
             except AttributeError:
-                cast = self._cast_type(cur_pos + 1, GeneratedObject)
+                cast = self._cast_type(cur_pos + delay + 1, GeneratedObject)
                 setattr(
                     target, actual_attr,
                     [] if indexes and not issubclass(cast, list) else cast()
@@ -136,13 +132,13 @@ class MapField(object):
                     asdict, target, actual_attr, cur_pos, indexes
                 )
             except KeyError:
-                cast = self._cast_type(cur_pos + 1, dict)
+                cast = self._cast_type(cur_pos + delay + 1, dict)
                 target[actual_attr] = [
                 ] if indexes and not issubclass(cast, list) else cast()
                 result = self.__allocate_array(
                     asdict, target, actual_attr, cur_pos, indexes
                 )
-            return result
+            return (result, delay + len(indexes))
 
         if not obj.connected_object:
             obj.connect(
@@ -155,8 +151,8 @@ class MapField(object):
         ]
         last_attr = self.__index_find_pattern__.sub("", attrs[-1])
         target_obj = reduce_with_index(
-            get_or_create, attrs[:-1], obj.connected_object
-        )
+            get_or_create, attrs[:-1], (obj.connected_object, 0)
+        )[0]
         if isinstance(target_obj, dict):
             target_obj[last_attr] = self.__correct_value(
                 target_obj.get(last_attr, None),

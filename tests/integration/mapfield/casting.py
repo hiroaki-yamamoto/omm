@@ -104,7 +104,6 @@ class ObjectBasedArrayCastingTest(TestCase):
         )
 
 
-# ArrayMapComplexCastingTestSchema
 class ObjectBasedArrayComplexCastingTest(TestCase):
     """Test for complex casting with array."""
 
