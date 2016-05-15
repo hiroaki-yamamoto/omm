@@ -18,6 +18,8 @@
   "homepage": "https://github.com/hiroaki-yamamoto/omm#readme",
   "devDependencies": {
     "gulp": "^3.9.1",
-    "hyamamoto-job-toolbox": "^0.1.5"
+    "hyamamoto-job-toolbox": "^0.1.5",
+    "q": "^1.4.1",
+    "rimraf": "^2.5.2"
   }
 }
