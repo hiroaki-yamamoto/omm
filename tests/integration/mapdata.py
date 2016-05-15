@@ -228,3 +228,9 @@ class ArrayMapDictCastingTestSchema(ArrayMapCastingTestSchema):
     """Array mapper (asdict)."""
 
     asdict = True
+
+
+class ArrayMapDictComplexCastingTestSchema(ArrayMapComplexCastingTestSchema):
+    """Array mapper (asdict)."""
+
+    asdict = True
