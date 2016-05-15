@@ -10,7 +10,8 @@ from ..mapdata import (
     DictSimpleTestSchemaWithSimpleCast, ArrayMapDictCastingTestSchema,
     SimpleTestSchemaWithComplexCast1, SimpleTestSchemaWithComplexCast2,
     ArrayMapComplexCastingTestSchema, DictSimpleTestSchemaWithComplexCast1,
-    DictSimpleTestSchemaWithComplexCast2, ArrayMapDictComplexCastingTestSchema
+    DictSimpleTestSchemaWithComplexCast2, ArrayMapDictComplexCastingTestSchema,
+    InvalidCastingLengthTestSchema
 )
 
 
@@ -224,7 +225,7 @@ class DictBasedArrayCastingTest(TestCase):
         )
 
 
-class ArrayMapDictComplexArrayCastingTestSchema(TestCase):
+class ArrayMapDictComplexArrayCastingTest(TestCase):
     """Test for complex casting with array (dict version)."""
 
     def setUp(self):
@@ -250,3 +251,48 @@ class ArrayMapDictComplexArrayCastingTestSchema(TestCase):
             result.test.users[0][1].info, self.Schema.InfoObj
         )
         self.assertIsInstance(result.test.users[0][1].info["name"], str)
+
+
+class InvalidCastLengthTest(TestCase):
+    """Invalid casting length test."""
+
+    def setUp(self):
+        """Setup the function."""
+        self.ObjectBasedSchema = InvalidCastingLengthTestSchema
+        self.object_base = self.ObjectBasedSchema()
+
+    def test_obj_name(self):
+        """An error should be raised."""
+        with self.assertRaises(ValueError) as error:
+            self.object_base.name = "John Smith"
+        self.assertEqual(
+            str(error.exception),
+            "The number of set_cast must be 4, not 3"
+        )
+
+    def test_obj_age(self):
+        """An error should be raised."""
+        with self.assertRaises(ValueError) as error:
+            self.object_base.age = "18"
+        self.assertEqual(
+            str(error.exception),
+            "The number of set_cast must be 4, not 5"
+        )
+
+    def test_admin_bit(self):
+        """An error should be raised."""
+        with self.assertRaises(ValueError) as error:
+            self.object_base.admin_bit = "18"
+        self.assertEqual(
+            str(error.exception),
+            "The number of set_cast must be 6, not 5"
+        )
+
+    def test_admin_manage_bit(self):
+        """An error should be raised."""
+        with self.assertRaises(ValueError) as error:
+            self.object_base.manage_bit = False
+        self.assertEqual(
+            str(error.exception),
+            "The number of set_cast must be 6, not 7"
+        )

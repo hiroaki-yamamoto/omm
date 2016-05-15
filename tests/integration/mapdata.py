@@ -234,3 +234,20 @@ class ArrayMapDictComplexCastingTestSchema(ArrayMapComplexCastingTestSchema):
     """Array mapper (asdict)."""
 
     asdict = True
+
+
+class InvalidCastingLengthTestSchema(omm.Mapper):
+    """Invalid cast schema because of the length of set_cast is invalid."""
+
+    name = omm.MapField("test.user.name", set_cast=[object, object, object])
+    age = omm.MapField(
+        "test.user.age", set_cast=[object, object, object, object, object]
+    )
+    admin_bit = omm.MapField(
+        "test.user.admin[1][2]",
+        set_cast=[object, object, object, object, object]
+    )
+    manage_bit = omm.MapField(
+        "test.user.admin[1][3]",
+        set_cast=[object, object, object, object, object, object, object]
+    )

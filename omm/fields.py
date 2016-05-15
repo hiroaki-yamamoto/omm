@@ -33,6 +33,7 @@ class MapField(object):
                 This argument should be callable.
             (Other arguments): They are treated as meta-data.
         """
+        super(MapField, self).__init__()
         self.target = target
         for (attr, value) in kwargs.items():
             setattr(self, attr, value)
@@ -107,6 +108,18 @@ class MapField(object):
 
     def __set__(self, obj, value):
         """Set descriptor."""
+        attrs = self.target.split(".")
+        num_cast = len(attrs) + len(
+            self.__index_find_pattern__.findall(self.target)
+        ) + 1
+        if isinstance(getattr(self, "set_cast", None), list) and \
+                len(self.set_cast) != num_cast:
+            raise ValueError(
+                ("The number of set_cast must be {}, not {}").format(
+                    num_cast, len(self.set_cast)
+                )
+            )
+
         asdict = getattr(obj, "asdict", False)
         GeneratedObject = type("GeneratedObject", (object, ), {})
 
@@ -144,7 +157,6 @@ class MapField(object):
             obj.connect(
                 self._cast_type(0, dict if asdict else GeneratedObject)()
             )
-        attrs = self.target.split(".")
         last_indexes = [
             int(index_str)
             for index_str in self.__index_find_pattern__.findall(attrs[-1])
