@@ -44,15 +44,54 @@ class Mapper(object):
         ```
     """
 
-    def __init__(self, target=None):
+    def __new__(cls, raise_inconsistent=True, *args, **kwargs):
+        """
+        Create a new instance of this class.
+
+        Parameters:
+            raise_inconsistent: Raise an error if the fields don't
+            have consistency.
+        """
+        from .fields import FieldBase
+        for (name, field) in cls.__dict__.items():
+            if not isinstance(field, FieldBase):
+                continue
+        return super(Mapper, cls).__new__(cls, *args, **kwargs)
+
+    def __init__(self, target=None, **kwargs):
         """
         Initialize the object.
 
         Parameters:
             target: The target object. By default, None is set.
+            **kwargs: Any attributes or meta-data.
         """
         if target is not None:
             self.connect(target)
+        for (attr, value) in kwargs.items():
+            setattr(self, attr, value)
+
+    @property
+    def errors(self):
+        """
+        Return error-dict.
+
+        The format of this property is compatible with [WTForms]. For example,
+        if there are errors, this property returns a dict like this:
+
+        ```JSON
+        {
+            "age": [
+                "This field refernces partially the same path of name"
+            ]
+        }
+        ```
+
+        If there aren't any errors, None is returned.
+
+        [WTForms]: https://wtforms.readthedocs.io/en/latest/
+        """
+        return getattr(self, "__errors", None)
 
     @property
     def connected_object(self):

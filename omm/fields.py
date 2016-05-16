@@ -8,7 +8,18 @@ from functools import reduce
 from .helper import reduce_with_index
 
 
-class MapField(object):
+class FieldBase(object):
+    """
+    The base class of any fields.
+
+    This shouldn't be used for end-use, but all OMM fields should
+    inhert this base field.
+    """
+
+    pass
+
+
+class MapField(FieldBase):
     """Normal Map Field."""
 
     __index_find_pattern__ = re.compile("\[([0-9])+\]+")
