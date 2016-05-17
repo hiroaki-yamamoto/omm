@@ -13,35 +13,36 @@ class InconsistentTypesModelTest(ut.TestCase):
 
     def setUp(self):
         """Setup."""
+        self.maxDiff = None
         self.Schema = InconsistentTypeSchema
 
     def test_errors_property(self):
         """The errors should be shown."""
-        schema = self.Schema(raise_inconsistent=False)
+        schema = self.Schema()
+        self.assertFalse(schema.validate())
         self.assertDictEqual({
             "alias": [(
                 "This field partially references the same path of name, "
                 "but set_cast corresponding to \"(root)\" is not the same."
             ), (
-                "This field partially references the same path of name, "
-                "but set_cast corresponding to \"(root).test\" "
-                "is not the same."
+                "This field partially references the same path of name, but "
+                "set_cast corresponding to \"(root).test\" is not the same."
             ), (
-                "This field partially references the same path of name, "
-                "but set_cast corresponding to \"(root).test.user\" is"
-                " not the same."
+                "This field partially references the same path of name, but "
+                "set_cast corresponding to \"(root).test.user\" is not the "
+                "same."
             ), (
-                "This field partially references the same path of name, "
-                "but set_cast corresponding to \"(root).root.test.user,name\""
-                " is not the same."
+                "This field partially references the same path of name, but "
+                "set_cast corresponding to \"(root).test.user.name\" is not "
+                "the same."
             )],
             "display_name": [(
-                "This field partially references the same path of name, "
-                "but set_cast corresponding to \"(root).test\" "
+                "This field partially references the same path of "
+                "alias, but set_cast corresponding to \"(root).test\" "
                 "is not the same."
             ), (
-                "This field partially references the same path of name, "
-                "but set_cast corresponding to \"(root).test.user\" is"
-                " not the same."
+                "This field partially references the same path of "
+                "alias, but set_cast corresponding to "
+                "\"(root).test.user\" is not the same."
             )]
         }, schema.errors)

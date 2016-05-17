@@ -3,6 +3,8 @@
 
 """Model Base."""
 
+from .fields import FieldBase
+
 
 class Mapper(object):
     """
@@ -44,20 +46,6 @@ class Mapper(object):
         ```
     """
 
-    def __new__(cls, raise_inconsistent=True, *args, **kwargs):
-        """
-        Create a new instance of this class.
-
-        Parameters:
-            raise_inconsistent: Raise an error if the fields don't
-            have consistency.
-        """
-        from .fields import FieldBase
-        for (name, field) in cls.__dict__.items():
-            if not isinstance(field, FieldBase):
-                continue
-        return super(Mapper, cls).__new__(cls, *args, **kwargs)
-
     def __init__(self, target=None, **kwargs):
         """
         Initialize the object.
@@ -70,6 +58,129 @@ class Mapper(object):
             self.connect(target)
         for (attr, value) in kwargs.items():
             setattr(self, attr, value)
+        super(Mapper, self).__init__()
+
+    def validate(self):
+        """Validate the model."""
+        self.__errors = {}
+        self.__fields = [
+            (name, field) for (name, field) in type(self).__dict__.items()
+            if isinstance(field, FieldBase) and isinstance(
+                getattr(field, "set_cast", None), list
+            )
+        ]
+        rest_fields = self.__validate_setattr_num()
+        rest_fields = self.__validate_consistency(rest_fields)
+        return not bool(self.__errors)
+
+    def __validate_setattr_num(self):
+        """Validate the # of setattr."""
+        fields = self.__fields
+        error_fields = []
+        for (name, field) in fields:
+            try:
+                field.validate()
+            except ValueError as e:
+                error_fields.append((name, field))
+                if isinstance(self.__errors.get(name), list):
+                    self.__errors[name].append(str(e))
+                else:
+                    self.__errors[name] = [str(e)]
+        return list(set(fields) - set(error_fields))
+
+    def __validate_consistency(self, fields=None):
+        """Check consistency of the class."""
+        fields = fields or self.__fields
+        error_fields = []
+        if not fields:
+            return {}
+        AttributeInfo = type("__AttrInfo__", (object, ), {})
+        root = AttributeInfo()
+        setattr(root, "$$type$$", fields[0][1].set_cast[0])
+        setattr(root, "$$source$$", fields[0][0])
+        err_msg = (
+            "This field partially references the same path of {source}, "
+            "but set_cast corresponding to \"{fldname}\" is not the same."
+        )
+        for (name, field) in fields:
+            parsed_attrs = field.target.split(".")
+            delay = 0
+            current = root
+            current_type = getattr(current, "$$type$$", None)
+            err = err_msg.format(
+                source=getattr(current, "$$source$$", None),
+                fldname="(root)"
+            )
+            root_set_cast = field.set_cast[0]
+            if current_type is not root_set_cast:
+                error_fields.append((name, field))
+                if isinstance(self.__errors.get(name), list):
+                    self.__errors[name].append(err)
+                else:
+                    self.__errors[name] = [err]
+            for (attr_index, parsed_attr) in enumerate(parsed_attrs):
+                indexes = field.index_find_pattern.findall(parsed_attr)
+                attr_set_cast = field.set_cast[attr_index + delay + 1]
+                current_target_str = ("(root).{}").format(
+                    (".").join(parsed_attrs[:attr_index + 1])
+                )
+                try:
+                    current = getattr(current, parsed_attr)
+                    current_type = getattr(current, "$$type$$", None)
+                    err = err_msg.format(
+                        source=getattr(current, "$$source$$", None),
+                        fldname=current_target_str
+                    )
+                    if current_type is not attr_set_cast:
+                        error_fields.append((name, field))
+                        if isinstance(self.__errors.get(name), list):
+                            self.__errors[name].append(err)
+                        else:
+                            self.__errors[name] = [err]
+                    for (index_index, index) in enumerate(indexes):
+                        current_target_str = ("").join([
+                            current_target_str,
+                            ("").join([
+                                ("[{}]").format(i_el)
+                                for i_el in indexes[:index_index + 1]
+                            ])
+                        ])
+                        try:
+                            current = getattr(current, index)
+                            current_type = getattr(current, "$$type$$")
+                            attr_set_cast = field.set_cast[
+                                attr_index + index_index + 1
+                            ]
+                            err = err_msg.format(
+                                source=getattr(
+                                    current, "$$source$$", None
+                                ),
+                                fldname=current_target_str
+                            )
+                            if current_type is not attr_set_cast:
+                                error_fields.append((name, field))
+                                if isinstance(self.__errors.get(name), list):
+                                    self.__errors[name].append(err)
+                                else:
+                                    self.__errors[name] = [err]
+                        except AttributeError:
+                            setattr(current, index, AttributeInfo())
+                            current = getattr(current, index)
+                            setattr(
+                                current, "$$type$$",
+                                field.set_cast[attr_index + index_index + 1]
+                            )
+                            setattr(current, "$$source$$", name)
+                except AttributeError:
+                    setattr(current, parsed_attr, AttributeInfo())
+                    current = getattr(current, parsed_attr)
+                    setattr(
+                        current, "$$type$$",
+                        field.set_cast[attr_index + delay + 1]
+                    )
+                    setattr(current, "$$source$$", name)
+                delay += len(indexes)
+        return list(set(fields) - set(error_fields))
 
     @property
     def errors(self):
@@ -91,7 +202,10 @@ class Mapper(object):
 
         [WTForms]: https://wtforms.readthedocs.io/en/latest/
         """
-        return getattr(self, "__errors", None)
+        try:
+            return self.__errors
+        except AttributeError:
+            raise NotImplementedError("Execute validate method.")
 
     @property
     def connected_object(self):

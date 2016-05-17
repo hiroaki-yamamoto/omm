@@ -117,8 +117,12 @@ class MapField(FieldBase):
             point = point[index]
         return point
 
-    def __set__(self, obj, value):
-        """Set descriptor."""
+    def validate(self):
+        """
+        Validate the field.
+
+        If the validation is failed, ValueError is raised.
+        """
         attrs = self.target.split(".")
         num_cast = len(attrs) + len(
             self.__index_find_pattern__.findall(self.target)
@@ -131,6 +135,10 @@ class MapField(FieldBase):
                 )
             )
 
+    def __set__(self, obj, value):
+        """Set descriptor."""
+        attrs = self.target.split(".")
+        self.validate()
         asdict = getattr(obj, "asdict", False)
         GeneratedObject = type("GeneratedObject", (object, ), {})
 
@@ -206,3 +214,8 @@ class MapField(FieldBase):
             value: The dot notated target.
         """
         self._target = value
+
+    @property
+    def index_find_pattern(self):
+        """Return index regular expression."""
+        return self.__index_find_pattern__
