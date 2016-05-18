@@ -3,6 +3,8 @@
 
 """Model Base."""
 
+from functools import partial
+
 from .fields import FieldBase
 
 
@@ -63,12 +65,16 @@ class Mapper(object):
     def validate(self):
         """Validate the model."""
         self.__errors = {}
-        self.__fields = [
+        FieldList = partial(sorted, key=lambda cmp: cmp[0]) \
+            if getattr(self, "$testing$", False) else list
+        self.__fields = FieldList([
             (name, field) for (name, field) in type(self).__dict__.items()
             if isinstance(field, FieldBase) and isinstance(
                 getattr(field, "set_cast", None), list
             )
-        ]
+        ])
+        self.__list = partial(sorted, key=self.__fields.index) \
+            if getattr(self, "$testing$", False) else list
         rest_fields = self.__validate_setattr_num()
         rest_fields = self.__validate_consistency(rest_fields)
         return not bool(self.__errors)
@@ -86,7 +92,7 @@ class Mapper(object):
                     self.__errors[name].append(str(e))
                 else:
                     self.__errors[name] = [str(e)]
-        return list(set(fields) - set(error_fields))
+        return self.__list(set(fields) - set(error_fields))
 
     def __validate_consistency(self, fields=None):
         """Check consistency of the class."""
@@ -180,7 +186,7 @@ class Mapper(object):
                     )
                     setattr(current, "$$source$$", name)
                 delay += len(indexes)
-        return list(set(fields) - set(error_fields))
+        return self.__list(set(fields) - set(error_fields))
 
     @property
     def errors(self):

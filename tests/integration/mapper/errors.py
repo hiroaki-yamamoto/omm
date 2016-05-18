@@ -19,30 +19,25 @@ class InconsistentTypesModelTest(ut.TestCase):
     def test_errors_property(self):
         """The errors should be shown."""
         schema = self.Schema()
+        setattr(schema, "$testing$", True)
         self.assertFalse(schema.validate())
+        result = schema.errors
+        from pprint import pprint
+        pprint(result)
+        error_msg = (
+            "This field partially references the same path of "
+            "{}, but set_cast corresponding to \"{}\" "
+            "is not the same."
+        )
         self.assertDictEqual({
-            "alias": [(
-                "This field partially references the same path of name, "
-                "but set_cast corresponding to \"(root)\" is not the same."
-            ), (
-                "This field partially references the same path of name, but "
-                "set_cast corresponding to \"(root).test\" is not the same."
-            ), (
-                "This field partially references the same path of name, but "
-                "set_cast corresponding to \"(root).test.user\" is not the "
-                "same."
-            ), (
-                "This field partially references the same path of name, but "
-                "set_cast corresponding to \"(root).test.user.name\" is not "
-                "the same."
-            )],
-            "display_name": [(
-                "This field partially references the same path of "
-                "alias, but set_cast corresponding to \"(root).test\" "
-                "is not the same."
-            ), (
-                "This field partially references the same path of "
-                "alias, but set_cast corresponding to "
-                "\"(root).test.user\" is not the same."
-            )]
-        }, schema.errors)
+            "display_name": [
+                error_msg.format("alias", "(root)"),
+                error_msg.format("alias", "(root).test.user.name")
+            ],
+            "name": [
+                error_msg.format("alias", "(root)"),
+                error_msg.format("alias", "(root).test"),
+                error_msg.format("alias", "(root).test.user"),
+                error_msg.format("alias", "(root).test.user.name")
+            ]
+        }, result)
