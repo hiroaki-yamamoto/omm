@@ -22,7 +22,7 @@ class FieldBase(object):
 class MapField(FieldBase):
     """Normal Map Field."""
 
-    __index_find_pattern__ = re.compile("\[([0-9])+\]+")
+    __index_find_pattern__ = re.compile("\[([0-9]+)\]+")
     __NotSpecifiedYet__ = type("__NotSpecifiedYet__", (object, ), {})
     __GeneratedObject__ = type("__GeneratedObject__", (object, ), {})
 
