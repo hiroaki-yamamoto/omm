@@ -89,10 +89,7 @@ class Mapper(object):
                 field.validate()
             except ValueError as e:
                 error_fields.append((name, field))
-                if isinstance(self.__errors.get(name), list):
-                    self.__errors[name].append(str(e))
-                else:
-                    self.__errors[name] = [str(e)]
+                self._register_error(name, str(e))
         return self.__list(set(fields) - set(error_fields))
 
     def _register_error(self, fldname, err):
