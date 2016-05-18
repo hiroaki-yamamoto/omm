@@ -3,6 +3,7 @@
 
 """Model Base."""
 
+import re
 from functools import partial
 
 from .fields import FieldBase
@@ -94,6 +95,19 @@ class Mapper(object):
                     self.__errors[name] = [str(e)]
         return self.__list(set(fields) - set(error_fields))
 
+    def _register_error(self, fldname, err):
+        """
+        Register an error message.
+
+        Parameters:
+            fldname: The name of the field.
+            err: The message
+        """
+        if isinstance(self.__errors.get(fldname), list):
+            self.__errors[fldname].append(err)
+        else:
+            self.__errors[fldname] = [err]
+
     def __validate_consistency(self, fields=None):
         """Check consistency of the class."""
         fields = fields or self.__fields
@@ -108,9 +122,12 @@ class Mapper(object):
             "This field partially references the same path of {source}, "
             "but set_cast corresponding to \"{fldname}\" is not the same."
         )
+        parse_pattern = re.compile("([^\.\[\]0-9]+)|\[([0-9]+)\]+")
         for (name, field) in fields:
-            parsed_attrs = field.target.split(".")
-            delay = 0
+            parsed_attrs = [
+                el for pa in parse_pattern.findall(field.target)
+                for el in pa if el
+            ]
             current = root
             current_type = getattr(current, "$$type$$", None)
             err = err_msg.format(
@@ -120,13 +137,9 @@ class Mapper(object):
             root_set_cast = field.set_cast[0]
             if current_type is not root_set_cast:
                 error_fields.append((name, field))
-                if isinstance(self.__errors.get(name), list):
-                    self.__errors[name].append(err)
-                else:
-                    self.__errors[name] = [err]
+                self._register_error(name, err)
             for (attr_index, parsed_attr) in enumerate(parsed_attrs):
-                indexes = field.index_find_pattern.findall(parsed_attr)
-                attr_set_cast = field.set_cast[attr_index + delay + 1]
+                attr_set_cast = field.set_cast[attr_index + 1]
                 current_target_str = ("(root).{}").format(
                     (".").join(parsed_attrs[:attr_index + 1])
                 )
@@ -139,53 +152,15 @@ class Mapper(object):
                     )
                     if current_type is not attr_set_cast:
                         error_fields.append((name, field))
-                        if isinstance(self.__errors.get(name), list):
-                            self.__errors[name].append(err)
-                        else:
-                            self.__errors[name] = [err]
-                    for (index_index, index) in enumerate(indexes):
-                        current_target_str = ("").join([
-                            current_target_str,
-                            ("").join([
-                                ("[{}]").format(i_el)
-                                for i_el in indexes[:index_index + 1]
-                            ])
-                        ])
-                        try:
-                            current = getattr(current, index)
-                            current_type = getattr(current, "$$type$$")
-                            attr_set_cast = field.set_cast[
-                                attr_index + index_index + 1
-                            ]
-                            err = err_msg.format(
-                                source=getattr(
-                                    current, "$$source$$", None
-                                ),
-                                fldname=current_target_str
-                            )
-                            if current_type is not attr_set_cast:
-                                error_fields.append((name, field))
-                                if isinstance(self.__errors.get(name), list):
-                                    self.__errors[name].append(err)
-                                else:
-                                    self.__errors[name] = [err]
-                        except AttributeError:
-                            setattr(current, index, AttributeInfo())
-                            current = getattr(current, index)
-                            setattr(
-                                current, "$$type$$",
-                                field.set_cast[attr_index + index_index + 1]
-                            )
-                            setattr(current, "$$source$$", name)
+                        self._register_error(name, err)
                 except AttributeError:
                     setattr(current, parsed_attr, AttributeInfo())
                     current = getattr(current, parsed_attr)
                     setattr(
                         current, "$$type$$",
-                        field.set_cast[attr_index + delay + 1]
+                        field.set_cast[attr_index + 1]
                     )
                     setattr(current, "$$source$$", name)
-                delay += len(indexes)
         return self.__list(set(fields) - set(error_fields))
 
     @property
