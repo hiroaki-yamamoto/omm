@@ -268,3 +268,27 @@ class InconsistentTypeSchema(omm.Mapper):
     display_name = omm.MapField(
         "test.user.name", set_cast=[StartObj, UserObj, TestObj, str]
     )
+
+
+class ArrayInconsistentTypeSchema(omm.Mapper):
+    """Test schema."""
+
+    RootObj = type("RootObj", (object,), {})
+    TestObj = type("TestObj", (object,), {})
+    UsersObj = type("UserObj", (list,), {})
+    UserProfilesObj = type("UserProfilesObj", (list,), {})
+    UserProfileElementObj = type("UserProfileElementObj", (list,), {})
+    name = omm.MapField(
+        "test.users[0][1].name",
+        set_cast=[
+            RootObj, TestObj, UsersObj,
+            UserProfilesObj, UserProfileElementObj, str
+        ]
+    )
+    alias = omm.MapField(
+        "test.users[0][1].name",
+        set_cast=[
+            RootObj, TestObj, UserProfilesObj, UsersObj,
+            UserProfileElementObj, int
+        ]
+    )
