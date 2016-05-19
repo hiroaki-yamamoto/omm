@@ -8,7 +8,18 @@ from functools import reduce
 from .helper import reduce_with_index
 
 
-class MapField(object):
+class FieldBase(object):
+    """
+    The base class of any fields.
+
+    This shouldn't be used for end-use, but all OMM fields should
+    inhert this base field.
+    """
+
+    pass
+
+
+class MapField(FieldBase):
     """Normal Map Field."""
 
     __index_find_pattern__ = re.compile("\[([0-9])+\]+")
@@ -106,8 +117,12 @@ class MapField(object):
             point = point[index]
         return point
 
-    def __set__(self, obj, value):
-        """Set descriptor."""
+    def validate(self):
+        """
+        Validate the field.
+
+        If the validation is failed, ValueError is raised.
+        """
         attrs = self.target.split(".")
         num_cast = len(attrs) + len(
             self.__index_find_pattern__.findall(self.target)
@@ -120,6 +135,10 @@ class MapField(object):
                 )
             )
 
+    def __set__(self, obj, value):
+        """Set descriptor."""
+        attrs = self.target.split(".")
+        self.validate()
         asdict = getattr(obj, "asdict", False)
         GeneratedObject = type("GeneratedObject", (object, ), {})
 

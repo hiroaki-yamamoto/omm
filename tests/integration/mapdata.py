@@ -251,3 +251,44 @@ class InvalidCastingLengthTestSchema(omm.Mapper):
         "test.user.admin[1][3]",
         set_cast=[object, object, object, object, object, object, object]
     )
+
+
+class InconsistentTypeSchema(omm.Mapper):
+    """Inconsistent cast schema."""
+
+    StartObj = type("StartObj", (object,), {})
+    TestObj = type("TestObj", (object,), {})
+    UserObj = type("UserObj", (object,), {})
+    name = omm.MapField(
+        "test.user.name", set_cast=[StartObj, TestObj, UserObj, str]
+    )
+    alias = omm.MapField(
+        "test.user.name", set_cast=[TestObj, UserObj, TestObj, int]
+    )
+    display_name = omm.MapField(
+        "test.user.name", set_cast=[StartObj, UserObj, TestObj, str]
+    )
+
+
+class ArrayInconsistentTypeSchema(omm.Mapper):
+    """Test schema."""
+
+    RootObj = type("RootObj", (object,), {})
+    TestObj = type("TestObj", (object,), {})
+    UsersObj = type("UserObj", (list,), {})
+    UserProfilesObj = type("UserProfilesObj", (list,), {})
+    UserProfileElementObj = type("UserProfileElementObj", (list,), {})
+    name = omm.MapField(
+        "test.users[0][1].name",
+        set_cast=[
+            RootObj, TestObj, UsersObj,
+            UserProfilesObj, UserProfileElementObj, str
+        ]
+    )
+    alias = omm.MapField(
+        "test.users[0][1].name",
+        set_cast=[
+            RootObj, TestObj, UserProfilesObj, UsersObj,
+            UserProfileElementObj, int
+        ]
+    )
