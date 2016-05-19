@@ -7,6 +7,7 @@ import re
 from functools import partial
 
 from .fields import FieldBase
+from .helper import reduce_with_index
 
 
 class Mapper(object):
@@ -120,6 +121,33 @@ class Mapper(object):
             "but set_cast corresponding to \"{fldname}\" is not the same."
         )
         parse_pattern = re.compile("([^\.\[\]0-9]+)|\[([0-9]+)\]+")
+
+        def check_consistency_for_each_value(cur, attr, index, attrs):
+            attr_set_cast = field.set_cast[index + 1]
+            current_target_str = ("(root).{}").format(
+                (".").join(attrs[:index + 1])
+            )
+            current = cur
+            try:
+                current = getattr(current, attr)
+                current_type = getattr(current, "$$type$$", None)
+                err = err_msg.format(
+                    source=getattr(current, "$$source$$", None),
+                    fldname=current_target_str
+                )
+                if current_type is not attr_set_cast:
+                    error_fields.append((name, field))
+                    self._register_error(name, err)
+            except AttributeError:
+                setattr(current, attr, AttributeInfo())
+                current = getattr(current, attr)
+                setattr(
+                    current, "$$type$$",
+                    field.set_cast[index + 1]
+                )
+                setattr(current, "$$source$$", name)
+            return current
+
         for (name, field) in fields:
             parsed_attrs = [
                 el for pa in parse_pattern.findall(field.target)
@@ -135,29 +163,10 @@ class Mapper(object):
             if current_type is not root_set_cast:
                 error_fields.append((name, field))
                 self._register_error(name, err)
-            for (attr_index, parsed_attr) in enumerate(parsed_attrs):
-                attr_set_cast = field.set_cast[attr_index + 1]
-                current_target_str = ("(root).{}").format(
-                    (".").join(parsed_attrs[:attr_index + 1])
-                )
-                try:
-                    current = getattr(current, parsed_attr)
-                    current_type = getattr(current, "$$type$$", None)
-                    err = err_msg.format(
-                        source=getattr(current, "$$source$$", None),
-                        fldname=current_target_str
-                    )
-                    if current_type is not attr_set_cast:
-                        error_fields.append((name, field))
-                        self._register_error(name, err)
-                except AttributeError:
-                    setattr(current, parsed_attr, AttributeInfo())
-                    current = getattr(current, parsed_attr)
-                    setattr(
-                        current, "$$type$$",
-                        field.set_cast[attr_index + 1]
-                    )
-                    setattr(current, "$$source$$", name)
+            reduce_with_index(
+                check_consistency_for_each_value, parsed_attrs, current,
+                attrs=parsed_attrs
+            )
         return self.__list(set(fields) - set(error_fields))
 
     @property

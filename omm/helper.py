@@ -4,7 +4,7 @@
 """Helper functions."""
 
 
-def reduce_with_index(fn, iterable, start=None):
+def reduce_with_index(fn, iterable, start=None, *args, **kwargs):
     """
     A wrapper of functools.reduce, but this function puts index to fn.
 
@@ -15,6 +15,7 @@ def reduce_with_index(fn, iterable, start=None):
         it: The iteratable object.
         start: The same of "initializer" at reduce on the official
             python document.
+        *args, **kwargs: Any arguments to be passed into fn
 
     Required Parameters for fn:
         target: target object to manipulate. This is the same maning of x at
@@ -32,5 +33,5 @@ def reduce_with_index(fn, iterable, start=None):
             )
     accum_value = start
     for index, x in enumerate(it):
-        accum_value = fn(accum_value, x, index)
+        accum_value = fn(accum_value, x, index, *args, **kwargs)
     return accum_value
