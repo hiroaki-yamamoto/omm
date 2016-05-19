@@ -5,6 +5,13 @@
 
 import unittest as ut
 
+try:
+    from unittest.mock import MagicMock
+except:
+    from mock import MagicMock
+
+import omm
+
 from ..mapdata import InconsistentTypeSchema
 
 
@@ -41,3 +48,34 @@ class InconsistentTypesModelTest(ut.TestCase):
                 error_msg.format("alias", "(root).test.user.name")
             ]
         }, result)
+
+
+class FieldValidationTest(ut.TestCase):
+    """validate() for each field should be called."""
+
+    def setUp(self):
+        """Setup the function."""
+        class TestSchema(omm.Mapper):
+            test = omm.MapField("test.example")
+            test2 = omm.MapField("test.example2")
+
+            def __new__(cls, *args, **kwargs):
+                cls.test.validate = MagicMock(
+                    side_effect=ValueError("It works")
+                )
+                cls.test2.validate = MagicMock(
+                    side_effect=ValueError("It works")
+                )
+                return super(TestSchema, cls).__new__(cls, *args, **kwargs)
+
+        self.Schema = TestSchema
+        self.schema = self.Schema()
+
+    def test_validate(self):
+        """The validation should be failed."""
+        self.assertFalse(self.schema.validate())
+        result = self.schema.errors
+        self.assertDictEqual(
+            {"test": ["It works"], "test2": ["It works"]},
+            result
+        )

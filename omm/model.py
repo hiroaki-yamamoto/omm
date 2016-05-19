@@ -71,18 +71,16 @@ class Mapper(object):
             if getattr(self, "$testing$", False) else list
         self.__fields = FieldList([
             (name, field) for (name, field) in type(self).__dict__.items()
-            if isinstance(field, FieldBase) and isinstance(
-                getattr(field, "set_cast", None), list
-            )
+            if isinstance(field, FieldBase)
         ])
         self.__list = partial(sorted, key=self.__fields.index) \
             if getattr(self, "$testing$", False) else list
-        rest_fields = self.__validate_setattr_num()
+        rest_fields = self.__validate_each_field()
         rest_fields = self.__validate_consistency(rest_fields)
         return not bool(self.__errors)
 
-    def __validate_setattr_num(self):
-        """Validate the # of setattr."""
+    def __validate_each_field(self):
+        """Validate each field."""
         fields = self.__fields
         error_fields = []
         for (name, field) in fields:
@@ -108,7 +106,10 @@ class Mapper(object):
 
     def __validate_consistency(self, fields=None):
         """Check consistency of the class."""
-        fields = fields or self.__fields
+        fields = [
+            field for field in fields or self.__fields
+            if isinstance(getattr(field[1], "set_cast", None), list)
+        ]
         error_fields = []
         if not fields:
             return {}
