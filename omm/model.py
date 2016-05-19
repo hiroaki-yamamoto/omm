@@ -123,7 +123,8 @@ class Mapper(object):
         )
         parse_pattern = re.compile("([^\.\[\]0-9]+)|\[([0-9]+)\]+")
 
-        def check_consistency_for_each_value(cur, attr, index, attrs):
+        def check_consistency_for_each_value(cur, attr, index,
+                                             attrs, name, field):
             attr_set_cast = field.set_cast[index + 1]
             current_target_str = ("(root).{}").format(
                 (".").join(attrs[:index + 1])
@@ -166,7 +167,7 @@ class Mapper(object):
                 self._register_error(name, err)
             reduce_with_index(
                 check_consistency_for_each_value, parsed_attrs, current,
-                attrs=parsed_attrs
+                attrs=parsed_attrs, name=name, field=field
             )
         return self.__list(set(fields) - set(error_fields))
 
