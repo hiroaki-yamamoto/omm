@@ -214,8 +214,3 @@ class MapField(FieldBase):
             value: The dot notated target.
         """
         self._target = value
-
-    @property
-    def index_find_pattern(self):
-        """Return index regular expression."""
-        return self.__index_find_pattern__
