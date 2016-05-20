@@ -94,7 +94,7 @@ class MapField(FieldBase):
         result_value = value
         if hasattr(self, "set_cast"):
             cast = self._cast_type(-1, None)
-            if cast is not None:
+            if not any([cast is None, type(result_value) is cast]):
                 result_value = cast(result_value)
         return target if isinstance(target, list) \
             else [] if indexes else result_value
