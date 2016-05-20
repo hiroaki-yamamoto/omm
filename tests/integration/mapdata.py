@@ -50,7 +50,7 @@ class SimpleTestSchemaWithSimpleCast(omm.Mapper):
         """Generate test data."""
         class User(object):
             def __init__(self):
-                self.name = "Test Example"
+                self.name = 41561234
                 self.age = "199"
 
             def to_dict(self):
@@ -72,6 +72,31 @@ class SimpleTestSchemaWithSimpleCast(omm.Mapper):
 
         test = DataClass()
         return test.to_dict() if asdict else test
+
+
+class SimpleTestSchemaWithSimpleCastWithDictFunction(
+    SimpleTestSchemaWithSimpleCast
+):
+    """Simple Test Data with casting, to_dict and from_dict in cast."""
+
+    class BaseField(object):
+        def __init__(self, value):
+            self.value = value
+
+    class IntegerField(BaseField):
+        def to_dict(self):
+            return int(self.value)
+
+    class StringField(BaseField):
+        def to_dict(self):
+            return str(self.value)
+
+    name = omm.MapField(
+        "test.user.name", set_cast=StringField, get_cast=StringField
+    )
+    age = omm.MapField(
+        "test.user.age", set_cast=IntegerField, get_cast=IntegerField
+    )
 
 
 class SimpleTestSchemaWithComplexCast1(omm.Mapper):
@@ -191,7 +216,7 @@ class ArrayMapCastingTestSchema(omm.Mapper):
             def __init__(self):
                 self.users = [
                     None,
-                    [None, NameAge("test", "119", ["g", "gk", "gi", "10"])]
+                    [None, NameAge(1498, "119", ["g", "gk", "gi", "10"])]
                 ]
 
             def to_dict(self):
