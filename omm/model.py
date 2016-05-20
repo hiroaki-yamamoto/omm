@@ -3,6 +3,7 @@
 
 """Model Base."""
 
+import json
 import re
 from functools import partial
 
@@ -248,4 +249,36 @@ class Mapper(object):
                     ))
                 except AttributeError:
                     setattr(ret, name, value)
+        return ret
+
+    def to_json(self, **kwargs):
+        """
+        Generate JSON string.
+
+        Parameters:
+            **kwargs: Any keyword arguemnt to be passed to json.dumps
+        """
+        self.__collect_fields()
+        dct = {}
+        for (name, field) in self.__fields:
+            try:
+                dct[name] = getattr(self, name)
+            except AttributeError:
+                continue
+        return json.dumps(dct)
+
+    @classmethod
+    def from_json(cls, json_str, **kwargs):
+        """
+        De-serialize JSON string into the object.
+
+        Parameters:
+            json_str: JSON string to be deserialized
+            **kwargs: Any keyword arguments to be passed to json.loads
+        """
+        ret = cls()
+        dct = json.loads(json_str, **kwargs)
+        for (name, value) in dct.items():
+            if hasattr(cls, name):
+                setattr(ret, name, value)
         return ret
