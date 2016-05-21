@@ -71,3 +71,11 @@ class JSONInValueInvocationTest(ut.TestCase):
                 call(json.dumps({"age": self.data["age"]}))
             ], any_order=True
         )
+
+
+class DictInvocationAsAlternativeTest(ut.TestCase):
+    """Test for to_dict invocation."""
+
+    def test_to_dict(self):
+        """Field.to_dict should be called if to_json doesn't exist in Field."""
+        raise NotImplementedError("This test case is not implemented yet.")
