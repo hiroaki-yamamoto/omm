@@ -72,7 +72,7 @@ class MapField(FieldBase):
         data = obj.connected_object
         attrs = self.target.split(".")
         ret = reduce(self.__lookup, attrs, data)
-        if hasattr(self, "get_cast"):
+        if hasattr(self, "get_cast") and not isinstance(ret, self.get_cast):
             ret = self.get_cast(ret)
         return ret
 

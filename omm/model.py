@@ -263,6 +263,7 @@ class Mapper(object):
         for (name, field) in self.__fields:
             try:
                 dct[name] = getattr(self, name)
+                dct[name] = json.loads(dct[name].to_json(**kwargs))
             except AttributeError:
                 continue
         return json.dumps(dct)
@@ -280,5 +281,13 @@ class Mapper(object):
         dct = json.loads(json_str, **kwargs)
         for (name, value) in dct.items():
             if hasattr(cls, name):
-                setattr(ret, name, value)
+                try:
+                    set_cast = getattr(cls, name).set_cast
+                    if isinstance(set_cast, list):
+                        set_cast = set_cast[-1]
+                    setattr(ret, name, set_cast.from_json(
+                        json.dumps({name: value})
+                    ))
+                except AttributeError:
+                    setattr(ret, name, value)
         return ret
