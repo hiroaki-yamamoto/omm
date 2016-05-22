@@ -31,7 +31,7 @@ class CastTypeTest(ut.TestCase):
     def test_type_error_normal(self):
         """self.Objs[0] should be returned."""
         self.field.set_cast = self.Objs[0]
-        result = self.field._cast_type(0)
+        result = self.field._cast_type(-1)
         self.assertIs(result, self.Objs[0])
 
     def test_type_error_index_only(self):

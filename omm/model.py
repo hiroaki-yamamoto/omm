@@ -3,6 +3,7 @@
 
 """Model Base."""
 
+import json
 import re
 from functools import partial
 
@@ -64,15 +65,18 @@ class Mapper(object):
             setattr(self, attr, value)
         super(Mapper, self).__init__()
 
-    def validate(self):
-        """Validate the model."""
-        self.__errors = {}
+    def __collect_fields(self):
         FieldList = partial(sorted, key=lambda cmp: cmp[0]) \
             if getattr(self, "$testing$", False) else list
         self.__fields = FieldList([
             (name, field) for (name, field) in type(self).__dict__.items()
             if isinstance(field, FieldBase)
         ])
+
+    def validate(self):
+        """Validate the model."""
+        self.__errors = {}
+        self.__collect_fields()
         self.__list = partial(sorted, key=self.__fields.index) \
             if getattr(self, "$testing$", False) else list
         rest_fields = self.__validate_each_field()
@@ -209,3 +213,86 @@ class Mapper(object):
             target: The target object.
         """
         self._target = target
+
+    def to_dict(self):
+        """Convert the schema into dict."""
+        self.__collect_fields()
+        dct = {}
+        for (name, fld) in self.__fields:
+            try:
+                value = getattr(self, name)
+                try:
+                    dct[name] = value.to_dict()
+                except AttributeError:
+                    dct[name] = value
+            except AttributeError:
+                pass
+        return dct
+
+    @classmethod
+    def from_dict(cls, dct):
+        """
+        Convert the given dict into the schema.
+
+        Parameters:
+            dct: The dict to be deserialize.
+        """
+        ret = cls()
+        for (name, value) in dct.items():
+            if hasattr(cls, name):
+                try:
+                    set_cast = getattr(cls, name).set_cast
+                    if isinstance(set_cast, list):
+                        set_cast = set_cast[-1]
+                    setattr(ret, name, set_cast.from_dict(
+                        {name: value}
+                    ))
+                except AttributeError:
+                    setattr(ret, name, value)
+        return ret
+
+    def to_json(self, **kwargs):
+        """
+        Generate JSON string.
+
+        Parameters:
+            **kwargs: Any keyword arguemnt to be passed to json.dumps
+        """
+        self.__collect_fields()
+        dct = {}
+        for (name, field) in self.__fields:
+            try:
+                dct[name] = getattr(self, name)
+                dct[name] = json.loads(
+                    dct[name].to_json(**kwargs)
+                ) if hasattr(dct[name], "to_json") else dct[name].to_dict()
+            except AttributeError:
+                continue
+        return json.dumps(dct)
+
+    @classmethod
+    def from_json(cls, json_str, **kwargs):
+        """
+        De-serialize JSON string into the object.
+
+        Parameters:
+            json_str: JSON string to be deserialized
+            **kwargs: Any keyword arguments to be passed to json.loads
+        """
+        ret = cls()
+        dct = json.loads(json_str, **kwargs)
+        for (name, value) in dct.items():
+            if hasattr(cls, name):
+                try:
+                    set_cast = getattr(cls, name).set_cast
+                    if isinstance(set_cast, list):
+                        set_cast = set_cast[-1]
+                    setattr(
+                        ret, name, set_cast.from_json(
+                            json.dumps({name: value})
+                        ) if hasattr(set_cast, "from_json")
+                        else set_cast.from_dict({name: value})
+                    )
+                except AttributeError:
+                    setattr(ret, name, value)
+        return ret

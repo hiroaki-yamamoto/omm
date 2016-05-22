@@ -72,7 +72,7 @@ class MapField(FieldBase):
         data = obj.connected_object
         attrs = self.target.split(".")
         ret = reduce(self.__lookup, attrs, data)
-        if hasattr(self, "get_cast"):
+        if hasattr(self, "get_cast") and not isinstance(ret, self.get_cast):
             ret = self.get_cast(ret)
         return ret
 
@@ -83,7 +83,7 @@ class MapField(FieldBase):
         except TypeError as e:
             if index_only and default is self.__NotSpecifiedYet__:
                 raise e
-            ret = default if index_only else self.set_cast
+            ret = default if index_only or index >= 0 else self.set_cast
         except AttributeError as e:
             if default is self.__NotSpecifiedYet__:
                 raise e

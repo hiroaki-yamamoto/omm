@@ -26,7 +26,7 @@ class ObjectBasedSimpleCastingTest(TestCase):
 
     def test_get(self):
         """The returned value should be the proper-type."""
-        self.assertIsInstance(self.schema.name, str)
+        self.assertIsInstance(self.schema.name, int)
         self.assertIsInstance(self.schema.age, int)
 
     def test_set(self):
@@ -89,7 +89,7 @@ class ObjectBasedArrayCastingTest(TestCase):
 
     def test_get(self):
         """The returne value should be the proper-value."""
-        self.assertIsInstance(self.schema.name, str)
+        self.assertIsInstance(self.schema.name, int)
         self.assertIsInstance(self.schema.age, int)
         self.assertIsInstance(self.schema.lastest_score, int)
 
@@ -145,7 +145,7 @@ class DictBasedSimpleCastingTest(TestCase):
 
     def test_get(self):
         """The returned value should be the propert-type."""
-        self.assertIsInstance(self.schema.name, str)
+        self.assertIsInstance(self.schema.name, int)
         self.assertIsInstance(self.schema.age, int)
 
     def test_set(self):
@@ -208,7 +208,7 @@ class DictBasedArrayCastingTest(TestCase):
 
     def test_get(self):
         """The returne value should be the proper-value."""
-        self.assertIsInstance(self.schema.name, str)
+        self.assertIsInstance(self.schema.name, int)
         self.assertIsInstance(self.schema.age, int)
         self.assertIsInstance(self.schema.lastest_score, int)
 
