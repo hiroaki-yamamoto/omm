@@ -11,12 +11,12 @@
 [Landscape Link]: https://landscape.io/github/hiroaki-yamamoto/omm/master
 
 
-# What This?
+## What This?
 This script bypasses models into other models. For example, you can flat
 multi-depth model with this script, or you can make multi-depth model from
 flat models.
 
-# Why I Make This?
+## Why I Make This?
 When I used MongoEngine, I needed to design the model like this:
 
 ```python
@@ -68,7 +68,7 @@ Of course, above is not good for public api
 (On public api, recent and prev should be embedded in a field),
 but above structure reduces the number of requests.
 
-# How to use
+## How to use
 
 I think you must need example code than the doc.
 
@@ -121,7 +121,7 @@ class UserMapper(omm.Mapper):
 TODO
 ```
 
-# License (MIT License)
+## License (MIT License)
 
 Copyright (c) 2016 Hiroaki Yamamoto
 
