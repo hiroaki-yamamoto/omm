@@ -3,6 +3,7 @@
 
 """Mapping data for integration tests."""
 
+import json
 import omm
 
 
@@ -90,6 +91,39 @@ class SimpleTestSchemaWithSimpleCastWithDictFunction(
     class StringField(BaseField):
         def to_dict(self):
             return str(self.value)
+
+    name = omm.MapField(
+        "test.user.name", set_cast=StringField, get_cast=StringField
+    )
+    age = omm.MapField(
+        "test.user.age", set_cast=IntegerField, get_cast=IntegerField
+    )
+
+
+class SimpleTestSchemaWithSimpleCastWithJSONFunction(
+    SimpleTestSchemaWithSimpleCast
+):
+    """Simple Test Data with casting, to_json and from_json in cast."""
+
+    class BaseField(object):
+        def __init__(self, value):
+            self.value = value
+
+    class IntegerField(BaseField):
+        def to_json(self):
+            return json.dumps({"value": int(self.value)})
+
+        @classmethod
+        def from_json(cls, jsonstr):
+            return cls(**list(json.loads(jsonstr).values())[0])
+
+    class StringField(BaseField):
+        def to_json(self):
+            return json.dumps({"value": str(self.value)})
+
+        @classmethod
+        def from_json(cls, jsonstr):
+            return cls(**list(json.loads(jsonstr).values())[0])
 
     name = omm.MapField(
         "test.user.name", set_cast=StringField, get_cast=StringField
