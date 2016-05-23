@@ -105,7 +105,7 @@ class User(db.Document):
   def full_name(self):
     return (" ").join([self.first_name, self.last_name])
 
-  @full_name.setter:
+  @full_name.setter
   def full_name(self, value):
     try:
       (self.first_name, self.last_name) = value.split(" ")
