@@ -187,7 +187,7 @@ thru the mapper. Unfortunately the functionalities are not implemented yet.
 ### Other functionalities
 Read the [code]
 
-[code]: src
+[code]: omm
 
 ## License (MIT License)
 
