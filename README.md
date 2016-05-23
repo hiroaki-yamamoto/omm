@@ -12,9 +12,7 @@
 
 
 ## What This?
-This script bypasses models into other models. For example, you can flat
-multi-depth model with this script, or you can make multi-depth model from
-flat models.
+This script enables to flat/bump the model depth.
 
 ## Why I Make This?
 When I used MongoEngine, I needed to design the model like this:
@@ -35,7 +33,7 @@ class AssetInfo(db.Document):
 ```
 
 And creating RestAPI in above order without "Undefiend property" error,
-it is needed to create 5 curd resources:
+it is needed to create 5 CRUD resources:
 
 * `[GET, POST, PUT, DELETE] /assets`
 * `[GET, POST, PUT, DELETE] /cash`
@@ -185,6 +183,11 @@ api.register(UserController)
 
 Currently, I'm considering (and designing) the way to access multiple models
 thru the mapper. Unfortunately the functionalities are not implemented yet.
+
+### Other functionalities
+Read the [code]
+
+[code]: src
 
 ## License (MIT License)
 
