@@ -1,4 +1,4 @@
 #!/usr/bin/env python
 # coding=utf-8
 
-"""MapField Acceptance test."""
+"""MapField unit test."""
