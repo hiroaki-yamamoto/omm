@@ -72,9 +72,23 @@ but above structure reduces the number of requests.
 
 I think you must need example code than the doc.
 
+### Flat the model
+
 ```Python
+#!/usr/bin/env python
+# coding=utf-8
+
+"""
+Example code.
+
+Note that this is just an example.
+"""
 import mongoengine as db
 import omm
+import wtforms.forms as forms
+import wtforms.fields as fld
+import wtforms.validators as vld
+from ..api import api, render, login_only
 
 # First, let's define the target models as usual.
 class Address(db.EmbeddedDocument):
@@ -114,12 +128,63 @@ class UserMapper(omm.Mapper):
   street2 = omm.MapField(
     "address.street[1]", set_cast=[User, Address, list, str]
   )
+  # Note that dot-notation is used to specify the member.
   city = omm.MapField("address.city", set_cast=[User, Address, str])
   state = omm.MapField("address.state", set_cast=[User, Address, str])
   country = omm.MapField("address.country", set_cast=[User, Address, str])
 
-TODO
+class UserForm(forms.Form):
+  fullname = fld.StringField(validators=[vld.DataRequired()])
+  email = fld.StringField(validators=[vld.Email()])
+  street1 = fld.StringField(validators=[vld.DataRequired()])
+  street2 = fld.StringField(validators=[vld.Optional()])
+  city = fld.StringField(validators=[vld.DataRequired()])
+  state = fld.StringField(validators=[vld.DataRequired()])
+  country = fld.StringField(validators=[vld.DataRequired()])
+
+class UserController(object):
+  # User API
+
+  def get(self, id):
+    # GET request.
+    user = User.objects()
+    mapper = UserMapper(user)
+    return render(mapper.to_json(), mimetype="application/json")
+
+  def post(self):
+    # POST request.
+    form = UserForm(api.request.json())
+    if not form.validate():
+      return render(
+        api.jsonify(form.errors),
+        mimetype="application/json",
+        code=417
+      )
+    mapper = UserMapper()
+    form.populate_obj(mapper)
+    mapper.connected_object.save()
+
+  @login_only
+  def put(self, uid):
+    # PUT request.
+    form = UserForm(api.request.json())
+    if not form.validate():
+      return render(
+        api.jsonify(form.errors),
+        mimetype="application/json",
+        code=417
+      )
+    mapper = UserMapper(User.objects(uid))
+    form.populate_obj(mapper)
+    mapper.connected_object.save()
+
+api.register(UserController)
 ```
+
+### Increment the model depth
+
+Currently, I'm considering (and designing) the way to access multiple models
+thru the mapper. Unfortunately the functionalities are not implemented yet.
 
 ## License (MIT License)
 
