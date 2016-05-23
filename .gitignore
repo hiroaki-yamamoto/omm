@@ -64,3 +64,6 @@ target/
 
 # Ignore continuous build runner
 node_modules
+
+# Generated README.rst is not needed.
+README.rst
