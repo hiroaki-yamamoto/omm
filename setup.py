@@ -5,7 +5,7 @@
 import sys
 from setuptools import setup, find_packages
 
-dependencies = []
+dependencies = ["six==1.10.0"]
 desc = "Object Model Mapper for Python-based web apps and/or APIs"
 version = "0.5.0"
 if sys.version_info < (2, 7):

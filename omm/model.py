@@ -3,15 +3,37 @@
 
 """Model Base."""
 
+import collections as col
 import json
 import re
 from functools import partial
+
+import six
 
 from .fields import FieldBase
 from .helper import reduce_with_index
 
 
-class Mapper(object):
+class MetaMapper(type):
+    """The meta class of Mapper."""
+
+    def __init__(self, name, bases, members):
+        """New method."""
+        self.__fields = {}
+        for (key, value) in members.items():
+            if isinstance(value, FieldBase):
+                self.__fields[key] = value
+        super(MetaMapper, self).__init__(name, bases, members)
+
+    def _fields(self, instance):
+        """Return fields."""
+        (FieldList, FieldDict) = (
+            partial(sorted, key=lambda cmp: cmp[0]), col.OrderedDict
+        ) if getattr(instance, "$testing$", False) else (list, dict)
+        return FieldDict(FieldList(self.__fields.items()))
+
+
+class Mapper(six.with_metaclass(MetaMapper)):
     """
     Mapper Base Classs.
 
@@ -65,27 +87,18 @@ class Mapper(object):
             setattr(self, attr, value)
         super(Mapper, self).__init__()
 
-    def __collect_fields(self):
-        FieldList = partial(sorted, key=lambda cmp: cmp[0]) \
-            if getattr(self, "$testing$", False) else list
-        self.__fields = FieldList([
-            (name, field) for (name, field) in type(self).__dict__.items()
-            if isinstance(field, FieldBase)
-        ])
-
     def validate(self):
         """Validate the model."""
         self.__errors = {}
-        self.__collect_fields()
-        self.__list = partial(sorted, key=self.__fields.index) \
-            if getattr(self, "$testing$", False) else list
+        self.__list = partial(sorted, key=tuple(self.fields.items()).index) \
+            if getattr(self, "$testing$", False) else tuple
         rest_fields = self.__validate_each_field()
         rest_fields = self.__validate_consistency(rest_fields)
         return not bool(self.__errors)
 
     def __validate_each_field(self):
         """Validate each field."""
-        fields = self.__fields
+        fields = self.fields.items()
         error_fields = []
         for (name, field) in fields:
             try:
@@ -111,7 +124,7 @@ class Mapper(object):
     def __validate_consistency(self, fields=None):
         """Check consistency of the class."""
         fields = [
-            field for field in fields or self.__fields
+            field for field in fields or self.fields.items()
             if isinstance(getattr(field[1], "set_cast", None), list)
         ]
         error_fields = []
@@ -216,9 +229,8 @@ class Mapper(object):
 
     def to_dict(self):
         """Convert the schema into dict."""
-        self.__collect_fields()
         dct = {}
-        for (name, fld) in self.__fields:
+        for (name, fld) in self.fields.items():
             try:
                 value = getattr(self, name)
                 try:
@@ -258,9 +270,8 @@ class Mapper(object):
         Parameters:
             **kwargs: Any keyword arguemnt to be passed to json.dumps
         """
-        self.__collect_fields()
         dct = {}
-        for (name, field) in self.__fields:
+        for (name, field) in self.fields.items():
             try:
                 dct[name] = getattr(self, name)
                 dct[name] = json.loads(
@@ -296,3 +307,8 @@ class Mapper(object):
                 except AttributeError:
                     setattr(ret, name, value)
         return ret
+
+    @property
+    def fields(self):
+        """Return fields."""
+        return type(self)._fields(self)
