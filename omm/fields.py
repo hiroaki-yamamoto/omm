@@ -76,6 +76,10 @@ class MapField(FieldBase):
             ret = self.get_cast(ret)
         return ret
 
+    def __delete__(self, instance):
+        """Delete descriptor."""
+        return
+
     def _cast_type(self, index, default=__NotSpecifiedYet__, index_only=False):
         ret = None
         try:

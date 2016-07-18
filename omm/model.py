@@ -19,18 +19,11 @@ class MetaMapper(type):
 
     def __init__(self, name, bases, members):
         """New method."""
-        self.__fields = {}
+        self._fields = {}
         for (key, value) in members.items():
             if isinstance(value, FieldBase):
-                self.__fields[key] = value
+                self._fields[key] = value
         super(MetaMapper, self).__init__(name, bases, members)
-
-    def _fields(self, instance):
-        """Return fields."""
-        (FieldList, FieldDict) = (
-            partial(sorted, key=lambda cmp: cmp[0]), col.OrderedDict
-        ) if getattr(instance, "$testing$", False) else (list, dict)
-        return FieldDict(FieldList(self.__fields.items()))
 
 
 class Mapper(six.with_metaclass(MetaMapper)):
@@ -86,6 +79,11 @@ class Mapper(six.with_metaclass(MetaMapper)):
         for (attr, value) in kwargs.items():
             setattr(self, attr, value)
         super(Mapper, self).__init__()
+
+    def __delattr__(self, name):
+        """Delete attribute."""
+        self._fields.pop(name, None)
+        super(Mapper, self).__delattr__(name)
 
     def validate(self):
         """Validate the model."""
@@ -311,4 +309,7 @@ class Mapper(six.with_metaclass(MetaMapper)):
     @property
     def fields(self):
         """Return fields."""
-        return type(self)._fields(self)
+        (FieldList, FieldDict) = (
+            partial(sorted, key=lambda cmp: cmp[0]), col.OrderedDict
+        ) if getattr(self, "$testing$", False) else (list, dict)
+        return FieldDict(FieldList(self._fields.items()))
