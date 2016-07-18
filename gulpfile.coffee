@@ -3,14 +3,9 @@ q = require "q"
 rimraf = require "rimraf"
 toolbox = require "hyamamoto-job-toolbox"
 
-toolbox.python "", "omm", [
-  "--with-coverage",
-  "--cover-erase",
-  "--cover-package=omm",
-  "--all"
-]
+toolbox.python "", "omm", []
 
-gulp.task "test", ["python.tox"], ->
+gulp.task "test", ["python.tox.only"], ->
   # combine coverage
   toolbox.virtualenv(
     "coverage erase"
