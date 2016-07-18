@@ -198,7 +198,7 @@ class Mapper(object):
         try:
             return self.__errors
         except AttributeError:
-            raise NotImplementedError("Execute validate method.")
+            raise NotImplementedError("Execute validate method first.")
 
     @property
     def connected_object(self):

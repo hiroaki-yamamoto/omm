@@ -22,4 +22,4 @@ class MapperNoErrorTest(ut.TestCase):
         """Should return proper error."""
         with self.assertRaises(NotImplementedError) as e:
             self.schema.errors
-        self.assertEqual(str(e.exception), "Execute validate method.")
+        self.assertEqual(str(e.exception), "Execute validate method first.")
