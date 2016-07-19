@@ -80,11 +80,6 @@ class Mapper(six.with_metaclass(MetaMapper)):
             setattr(self, attr, value)
         super(Mapper, self).__init__()
 
-    def __delattr__(self, name):
-        """Delete attribute."""
-        self._fields.pop(name, None)
-        super(Mapper, self).__delattr__(name)
-
     def validate(self):
         """Validate the model."""
         self.__errors = {}

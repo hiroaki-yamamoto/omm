@@ -42,8 +42,6 @@ class MapField(FieldBase):
             get_cast: This is called when getting the value, and the returned
                 value is casted into the type specified by this argument.
                 This argument should be callable.
-            delete_value: if this argument is truthy, the value is deleted when
-                the field is dynamically deleted.
             (Other arguments): They are treated as meta-data.
         """
         super(MapField, self).__init__()
@@ -80,15 +78,14 @@ class MapField(FieldBase):
 
     def __delete__(self, instance):
         """Delete descriptor."""
-        if getattr(self, "delete_value", False):
-            target = instance.connected_object
-            target_route = self.target.split(".")
-            try:
-                target = reduce(getattr, target_route[:-1], target)
-                delattr(target, target_route[-1])
-            except AttributeError:
-                return
+        target = instance.connected_object
+        target_route = self.target.split(".")
+        try:
+            target = reduce(getattr, target_route[:-1], target)
+            delattr(target, target_route[-1])
+        except AttributeError:
             return
+        return
 
     def _cast_type(self, index, default=__NotSpecifiedYet__, index_only=False):
         ret = None
