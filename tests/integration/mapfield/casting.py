@@ -5,7 +5,7 @@
 
 from unittest import TestCase
 
-from ..mapdata import (
+from ...mapdata import (
     SimpleTestSchemaWithSimpleCast, ArrayMapCastingTestSchema,
     DictSimpleTestSchemaWithSimpleCast, ArrayMapDictCastingTestSchema,
     SimpleTestSchemaWithComplexCast1, SimpleTestSchemaWithComplexCast2,

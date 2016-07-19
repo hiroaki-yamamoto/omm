@@ -5,7 +5,7 @@
 
 import unittest as ut
 
-from ..mapdata import (
+from ...mapdata import (
     SimpleTestMapper, SimpleTestSchemaWithSimpleCast,
     SimpleTestSchemaWithSimpleCastWithDictFunction
 )

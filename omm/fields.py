@@ -49,16 +49,17 @@ class MapField(FieldBase):
         for (attr, value) in kwargs.items():
             setattr(self, attr, value)
 
-    def __lookup(self, data, attr):
+    def __split_name_index(self, attr):
         index = [
             int(value)
             for value in self.__index_find_pattern__.findall(attr)
         ]
-        result = data[
-            self.__index_find_pattern__.sub("", attr)
-        ] if isinstance(data, dict) else getattr(
-            data, self.__index_find_pattern__.sub("", attr)
-        )
+        name = self.__index_find_pattern__.sub("", attr)
+        return (name, index)
+
+    def __lookup(self, data, attr):
+        (name, index) = self.__split_name_index(attr)
+        result = data[name] if isinstance(data, dict) else getattr(data, name)
         if index:
             result = reduce(lambda v, i: v[i], index, result)
         return result
@@ -80,10 +81,21 @@ class MapField(FieldBase):
         """Delete descriptor."""
         target = instance.connected_object
         target_route = self.target.split(".")
+
         try:
-            target = reduce(getattr, target_route[:-1], target)
-            delattr(target, target_route[-1])
-        except AttributeError:
+            target = reduce(self.__lookup, target_route[:-1], target)
+            (name, index) = self.__split_name_index(target_route[-1])
+            if index:
+                target = target[name] if isinstance(target, dict) \
+                    else getattr(target, name)
+                target = reduce(lambda v, i: v[i], index[:-1], target)
+                del target[-1]
+            else:
+                if isinstance(target, dict):
+                    target.pop(target_route[-1])
+                else:
+                    delattr(target, target_route[-1])
+        except (AttributeError, KeyError):
             return
         return
 

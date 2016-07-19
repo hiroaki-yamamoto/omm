@@ -9,7 +9,7 @@ Note that this spec is INTEGRATION TEST!
 
 import unittest as ut
 
-from ..mapdata import (
+from ...mapdata import (
     SimpleTestMapper, DictSimpleTestSchema,
     ArrayMapTestSchema, ArrayMapDictTestSchema
 )

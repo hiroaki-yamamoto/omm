@@ -22,14 +22,17 @@ class SimpleTestMapper(omm.Mapper):
         Parameters:
             type_dict: Set True if the data is expected to be typed as dict.
         """
-        User = type("User", (object, ), {
-            "name": "Test Example",
-            "age": 960,
-            "sex": None
-        })
-        gen_obj = type("GenObj", (object, ), {
-            "test": User()
-        })()
+        class User(object):
+            def __init__(self):
+                self.name = "Test Example"
+                self.age = 960
+                self.sex = None
+
+        class GenObj(object):
+            def __init__(self):
+                self.test = User()
+
+        gen_obj = GenObj()
 
         return {
             "test": {
@@ -149,8 +152,7 @@ class SimpleTestSchemaWithComplexCast2(omm.Mapper):
 
     GeneratedObject = type("GeneratedObject", (object, ), {})
     name = omm.MapField(
-        "test.user.name",
-        set_cast=[dict, GeneratedObject, dict, str]
+        "test.user.name", set_cast=[dict, GeneratedObject, dict, str]
     )
 
 

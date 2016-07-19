@@ -12,7 +12,7 @@ except:
 
 import omm
 
-from ..mapdata import InconsistentTypeSchema, ArrayInconsistentTypeSchema
+from ...mapdata import InconsistentTypeSchema, ArrayInconsistentTypeSchema
 
 
 class InconsistentTypesModelTest(ut.TestCase):
