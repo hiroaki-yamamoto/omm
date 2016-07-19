@@ -42,6 +42,8 @@ class MapField(FieldBase):
             get_cast: This is called when getting the value, and the returned
                 value is casted into the type specified by this argument.
                 This argument should be callable.
+            clear_parent: clear the parent's value if this value is true and
+                when __delete__ descriptor is called.
             (Other arguments): They are treated as meta-data.
         """
         super(MapField, self).__init__()
@@ -82,22 +84,27 @@ class MapField(FieldBase):
         target = instance.connected_object
         target_route = self.target.split(".")
 
-        try:
-            target = reduce(self.__lookup, target_route[:-1], target)
-            (name, index) = self.__split_name_index(target_route[-1])
-            if index:
-                target = target[name] if isinstance(target, dict) \
-                    else getattr(target, name)
-                target = reduce(lambda v, i: v[i], index[:-1], target)
-                del target[-1]
-            else:
-                if isinstance(target, dict):
-                    target.pop(target_route[-1])
+        def delete_attr(target, target_route):
+            try:
+                target = reduce(self.__lookup, target_route[:-1], target)
+                (name, index) = self.__split_name_index(target_route[-1])
+                if index:
+                    target = target[name] if isinstance(target, dict) \
+                        else getattr(target, name)
+                    target = reduce(lambda v, i: v[i], index[:-1], target)
+                    del target[index[-1]]
                 else:
-                    delattr(target, target_route[-1])
-        except (AttributeError, KeyError):
-            return
-        return
+                    if isinstance(target, dict):
+                        target.pop(target_route[-1])
+                    else:
+                        delattr(target, target_route[-1])
+            except (AttributeError, KeyError):
+                return
+
+        delete_attr(target, target_route)
+
+        if getattr(self, "clear_parent", False):
+            raise NotImplementedError()
 
     def _cast_type(self, index, default=__NotSpecifiedYet__, index_only=False):
         ret = None

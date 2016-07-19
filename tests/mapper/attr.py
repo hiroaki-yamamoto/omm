@@ -5,7 +5,10 @@
 
 from unittest import TestCase
 
-from ..mapdata import SimpleTestMapper, ArrayMapTestSchema
+from ..mapdata import (
+    SimpleTestMapper, ArrayMapTestSchema, SimpleTestMapperWithClear,
+    ArrayMapTestSchemaWithClear
+)
 
 
 class MapperDeletionValueFromFieldExceptionTest(TestCase):
@@ -15,11 +18,12 @@ class MapperDeletionValueFromFieldExceptionTest(TestCase):
         """Setup."""
         self.cls = SimpleTestMapper
         self.data = self.cls.generate_test_data()
+        del self.data.test.age
         self.mapper = self.cls(self.data)
         del self.mapper.age
 
     def test_attr_delete_twice(self):
-        """Re-deletion doesn nothing."""
+        """Re-deletion does nothing."""
         del self.mapper.age
 
     def test_field_deletion(self):
@@ -44,6 +48,7 @@ class SimpleMapperDeletionTest(TestCase):
         """Setup."""
         self.cls = SimpleTestMapper
         self.data = self.cls.generate_test_data()
+        self.data_copy = self.cls.generate_test_data()
         self.mapper = self.cls(self.data)
         del self.mapper.age
 
@@ -56,11 +61,42 @@ class SimpleMapperDeletionTest(TestCase):
         with self.assertRaises(AttributeError):
             self.data.test.age
 
+    def test_other_data_as_is(self):
+        """The other data shouldn't be removed."""
+        self.assertEqual(self.data.test.name, self.data_copy.test.name)
+        self.assertEqual(self.data.test.sex, self.data_copy.test.sex)
+
     def test_attr_reassign(self):
         """Re-assignment should work."""
         age = 24
         self.mapper.age = age
         self.assertEqual(self.data.test.age, age)
+
+
+class SimpleMapperClearParentTest(TestCase):
+    """Field based parent clear Test."""
+
+    def setUp(self):
+        """Setup."""
+        self.cls = SimpleTestMapperWithClear
+        self.data = self.cls.generate_test_data()
+        self.mapper = self.cls(self.data)
+
+    def test_clean(self):
+        """self.data.test shouldn't exist."""
+        del self.mapper.age
+        self.assertTrue(
+            hasattr(self.data, "test"),
+            "The data should have test at this step."
+        )
+        del self.mapper.name
+        self.assertTrue(
+            hasattr(self.data, "test"),
+            "The data should have test at this step."
+        )
+        del self.mapper.sex
+        with self.assertRaises(AttributeError):
+            self.data.test
 
 
 class SimpleMapperDictDeletionTest(TestCase):
@@ -70,6 +106,7 @@ class SimpleMapperDictDeletionTest(TestCase):
         """Setup."""
         self.cls = SimpleTestMapper
         self.data = self.cls.generate_test_data(True)
+        self.data_copy = self.cls.generate_test_data(True)
         self.mapper = self.cls(self.data)
         del self.mapper.age
 
@@ -83,11 +120,48 @@ class SimpleMapperDictDeletionTest(TestCase):
             self.data["test"]["age"]
         self.assertEqual(str(e.exception), "'age'")
 
+    def test_other_data_as_is(self):
+        """The other data shouldn't be removed."""
+        self.assertEqual(
+            self.data["test"]["name"], self.data_copy["test"]["name"]
+        )
+        self.assertEqual(
+            self.data["test"]["sex"], self.data_copy["test"]["sex"]
+        )
+
     def test_attr_reassign(self):
         """Re-assignment should work."""
         age = 24
         self.mapper.age = age
         self.assertEqual(self.data["test"]["age"], age)
+
+
+class DictMapperClearParentTest(TestCase):
+    """Dict based field parent clear Test."""
+
+    def setUp(self):
+        """Setup."""
+        self.cls = SimpleTestMapperWithClear
+        self.data = self.cls.generate_test_data(True)
+        self.mapper = self.cls(self.data)
+        del self.mapper.age
+        del self.mapper.name
+        del self.mapper.sex
+
+    def test_clean(self):
+        """self.data[test] shouldn't exist."""
+        del self.mapper.age
+        self.assertIn(
+            "test", self.data,
+            "The data should have test at this step."
+        )
+        del self.mapper.name
+        self.assertIn(
+            "test", self.data,
+            "The data should have test at this step."
+        )
+        del self.mapper.sex
+        self.assertNotIn("test", self.data)
 
 
 class ArrayMapperDeletionTest(TestCase):
@@ -97,6 +171,7 @@ class ArrayMapperDeletionTest(TestCase):
         """Setup."""
         self.cls = ArrayMapTestSchema
         self.data = self.cls.generate_test_data()
+        self.data_copy = self.cls.generate_test_data()
         self.mapper = self.cls(self.data)
         del self.mapper.last_array
 
@@ -115,6 +190,91 @@ class ArrayMapperDeletionTest(TestCase):
         self.mapper.last_array = text
         self.assertEqual(self.data.test.array[1][2], text)
 
+    def test_other_data_as_is(self):
+        """The other data shouldn't be removed."""
+        self.assertEqual(
+            self.data.test.array[1][1].correct,
+            self.data_copy.test.array[1][1].correct
+        )
+
+
+class ArraytMapperClearParentTest(TestCase):
+    """Array element field parent clear Test."""
+
+    def setUp(self):
+        """Setup."""
+        self.cls = ArrayMapTestSchemaWithClear
+        self.data = self.cls.generate_test_data(False)
+        self.mapper = self.cls(self.data)
+
+    def test_last_element_remove(self):
+        """self.data.test.array[2] shouldn't exist."""
+        del self.mapper.last_first
+        self.assertIsNotNone(
+            self.data.test.array[2],
+            "The data should have the array at this step."
+        )
+        del self.mapper.last_last
+        self.assertIsNotNone(
+            self.data.test.array[2],
+            "The data should have the array at this step."
+        )
+        del self.mapper.last_mid
+        with self.assertRaises(IndexError):
+            self.data.test.array[2]
+
+    def test_middle_element_remove(self):
+        """self.data.test.array[1] should be None."""
+        del self.mapper.mid_first
+        self.assertIsNotNone(
+            self.data.test.array[1],
+            "The data should have the array at this step."
+        )
+        del self.mapper.mid_last
+        self.assertIsNotNone(
+            self.data.test.array[1],
+            "The data should have the array at this step."
+        )
+        del self.mapper.mid_mid
+        self.assertIsNone(self.data.test.array[1])
+
+    def test_last_and_mid_element_remove(self):
+        """len(self.data.test.array) should be 1."""
+        del self.mapper.mid_first
+        del self.mapper.mid_last
+        del self.mapper.mid_mid
+        del self.mapper.last_first
+        del self.mapper.last_last
+        del self.mapper.last_mid
+        self.assertEqual(len(self.data.test.array), 1)
+        self.assertListEqual(
+            self.data.test.array[0],
+            self.cls.generate_test_data().test.array[0]
+        )
+
+    def test_array_deletion(self):
+        """self.data.test.array shouldn't exist."""
+        del self.mapper.mid_first
+        del self.mapper.mid_last
+        del self.mapper.mid_mid
+        del self.mapper.last_first
+        del self.mapper.last_last
+        del self.mapper.last_mid
+
+        del self.mapper.first_first
+        self.assertIsNotNone(
+            self.data.test.array[0],
+            "The data should have the array at this step."
+        )
+        del self.mapper.first_last
+        self.assertIsNotNone(
+            self.data.test.array[0],
+            "The data should have the array at this step."
+        )
+        del self.mapper.first_mid
+        with self.assertRaises(AttributeError):
+            self.data.test.array
+
 
 class ArrayElementMapperDeletionTest(TestCase):
     """Array Field Deletion Test."""
@@ -123,6 +283,7 @@ class ArrayElementMapperDeletionTest(TestCase):
         """Setup."""
         self.cls = ArrayMapTestSchema
         self.data = self.cls.generate_test_data()
+        self.data_copy = self.cls.generate_test_data()
         self.mapper = self.cls(self.data)
         del self.mapper.array
 
@@ -140,3 +301,9 @@ class ArrayElementMapperDeletionTest(TestCase):
         text = "This is a Test."
         self.mapper.array = text
         self.assertEqual(self.data.test.array[1][1].correct, text)
+
+    def test_other_data_as_is(self):
+        """The other data shouldn't be removed."""
+        self.assertEqual(
+            self.data.test.array[1][2], self.data_copy.test.array[1][2]
+        )

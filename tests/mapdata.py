@@ -43,6 +43,14 @@ class SimpleTestMapper(omm.Mapper):
         } if type_dict else gen_obj
 
 
+class SimpleTestMapperWithClear(SimpleTestMapper):
+    """Simple mapper with clear_parent flag."""
+
+    name = omm.MapField("test.name", clear_parent=True)
+    age = omm.MapField("test.age", clear_parent=True)
+    sex = omm.MapField("test.sex", clear_parent=True)
+
+
 class SimpleTestSchemaWithSimpleCast(omm.Mapper):
     """Simple Test Data with casting."""
 
@@ -222,6 +230,59 @@ class ArrayMapTestSchema(omm.Mapper):
                 [{"correct": False}, {"correct": False}],
                 [{"correct": False}, {"correct": True}, "Hello World"],
             ]}
+        } if type_dict else ObjectClass()
+
+
+class ArrayMapTestSchemaWithClear(omm.Mapper):
+    """Array Mapper with clear_parent flag."""
+
+    first_first = omm.MapField("test.array[0][0]", clear_parent=True)
+    first_mid = omm.MapField("test.array[0][1]", clear_parent=True)
+    first_last = omm.MapField("test.array[0][2]", clear_parent=True)
+
+    mid_first = omm.MapField("test.array[1][0]", clear_parent=True)
+    mid_mid = omm.MapField("test.array[1][1]", clear_parent=True)
+    mid_last = omm.MapField("test.array[1][2]", clear_parent=True)
+
+    last_first = omm.MapField("test.array[2][0]", clear_parent=True)
+    last_mid = omm.MapField("test.array[2][1]", clear_parent=True)
+    last_last = omm.MapField("test.array[2][2]", clear_parent=True)
+
+    @staticmethod
+    def generate_test_data(type_dict=False):
+        """
+        Generate test data.
+
+        Parameters:
+            type_dict: Set True if the data is expected to be typed as dict.
+        """
+        slen = 3
+
+        class ArrayElement(object):
+
+            def __init__(self, correct):
+                self.correct = correct
+
+        class Test(object):
+
+            def __init__(self):
+                self.array = [
+                    [ArrayElement(outer == inner)for inner in range(slen)]
+                    for outer in range(slen)
+                ]
+
+        class ObjectClass(object):
+
+            def __init__(self):
+                self.test = Test()
+
+        return {
+            "test": {
+                "array": [
+                    [{"correct": outer == inner} for inner in range(slen)]
+                    for outer in range(slen)
+                ]
+            }
         } if type_dict else ObjectClass()
 
 
