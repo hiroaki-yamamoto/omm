@@ -267,7 +267,7 @@ class ArrayMapTestSchemaWithClear(omm.Mapper):
 
             def __init__(self):
                 self.array = [
-                    [ArrayElement(outer == inner)for inner in range(slen)]
+                    [ArrayElement(outer == inner) for inner in range(slen)]
                     for outer in range(slen)
                 ]
 

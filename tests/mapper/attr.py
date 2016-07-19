@@ -221,7 +221,7 @@ class ArraytMapperClearParentTest(TestCase):
         )
         del self.mapper.last_mid
         with self.assertRaises(IndexError):
-            self.data.test.array[2]
+            print(self.data.test.array[2])
 
     def test_middle_element_remove(self):
         """self.data.test.array[1] should be None."""
@@ -237,6 +237,21 @@ class ArraytMapperClearParentTest(TestCase):
         )
         del self.mapper.mid_mid
         self.assertIsNone(self.data.test.array[1])
+
+    def test_first_element_remove(self):
+        """self.data.test.array[0] should be None."""
+        del self.mapper.first_first
+        self.assertIsNotNone(
+            self.data.test.array[0],
+            "The data should have the array at this step."
+        )
+        del self.mapper.first_last
+        self.assertIsNotNone(
+            self.data.test.array[0],
+            "The data should have the array at this step."
+        )
+        del self.mapper.first_mid
+        self.assertIsNone(self.data.test.array[0])
 
     def test_last_and_mid_element_remove(self):
         """len(self.data.test.array) should be 1."""

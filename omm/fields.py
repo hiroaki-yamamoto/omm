@@ -86,25 +86,62 @@ class MapField(FieldBase):
 
         def delete_attr(target, target_route):
             try:
-                target = reduce(self.__lookup, target_route[:-1], target)
+                obj = reduce(self.__lookup, target_route[:-1], target)
+                parent_obj = None
+                try:
+                    parent_obj = reduce(
+                        self.__lookup,
+                        target_route[:-2],
+                        target
+                    )
+                except IndexError:
+                    pass
                 (name, index) = self.__split_name_index(target_route[-1])
                 if index:
-                    target = target[name] if isinstance(target, dict) \
-                        else getattr(target, name)
-                    target = reduce(lambda v, i: v[i], index[:-1], target)
-                    del target[index[-1]]
-                else:
-                    if isinstance(target, dict):
-                        target.pop(target_route[-1])
+                    parent_obj = obj
+                    obj = obj[name] if isinstance(obj, dict) \
+                        else getattr(obj, name)
+
+                    try:
+                        parent_obj = reduce(lambda v, i: v[i], index[:-2], obj)
+                    except IndexError:
+                        pass
+
+                    obj = reduce(lambda v, i: v[i], index[:-1], obj)
+
+                    if len(obj) == index[-1] + 1:
+                        del obj[index[-1]]
                     else:
-                        delattr(target, target_route[-1])
+                        obj[index[-1]] = None
+
+                    if getattr(self, "clear_parent", False):
+                        if all([el is None for el in obj]):
+                            if isinstance(parent_obj, list):
+                                if len(parent_obj) == index[-2] + 1:
+                                    del parent_obj[index[-2]]
+                                else:
+                                    parent_obj[index[-2]] = None
+                            elif isinstance(parent_obj, dict):
+                                parent_obj.pop(name)
+                            else:
+                                delattr(parent_obj, name)
+                        if not obj:
+                            delete_attr(
+                                target,
+                                (".").join(target_route[:-1]) + "[" +
+                                ("][").join([
+                                    str(el) for el in index[:-1]
+                                ]) + "]"
+                            )
+                else:
+                    if isinstance(obj, dict):
+                        obj.pop(target_route[-1])
+                    else:
+                        delattr(obj, target_route[-1])
             except (AttributeError, KeyError):
                 return
 
         delete_attr(target, target_route)
-
-        if getattr(self, "clear_parent", False):
-            raise NotImplementedError()
 
     def _cast_type(self, index, default=__NotSpecifiedYet__, index_only=False):
         ret = None
