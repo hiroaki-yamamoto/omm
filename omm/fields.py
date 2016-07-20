@@ -87,24 +87,13 @@ class MapField(FieldBase):
         def delete_attr(target, target_route):
             try:
                 obj = reduce(self.__lookup, target_route[:-1], target)
-                parent_obj = None
-                try:
-                    parent_obj = reduce(
-                        self.__lookup, target_route[:-2], target
-                    )
-                except IndexError:
-                    pass
+                parent_obj = reduce(self.__lookup, target_route[:-2], target)
                 (name, index) = self.__split_name_index(target_route[-1])
                 if index:
                     parent_obj = obj
                     obj = obj[name] if isinstance(obj, dict) \
                         else getattr(obj, name)
-
-                    try:
-                        parent_obj = reduce(lambda v, i: v[i], index[:-2], obj)
-                    except IndexError:
-                        pass
-
+                    parent_obj = reduce(lambda v, i: v[i], index[:-2], obj)
                     obj = reduce(lambda v, i: v[i], index[:-1], obj)
 
                     if len(obj) == index[-1] + 1:
@@ -113,12 +102,15 @@ class MapField(FieldBase):
                         obj[index[-1]] = None
 
                     if getattr(self, "clear_parent", False):
-                        if all([el is None for el in obj]):
-                            if isinstance(parent_obj, list):
-                                if len(parent_obj) == index[-2] + 1:
-                                    del parent_obj[index[-2]]
-                                else:
-                                    parent_obj[index[-2]] = None
+                        is_empty = all(
+                            [el is None for el in obj] +
+                            [isinstance(parent_obj, list)]
+                        )
+                        if is_empty:
+                            if len(parent_obj) == index[-2] + 1:
+                                del parent_obj[index[-2]]
+                            else:
+                                parent_obj[index[-2]] = None
                         shrink_list(parent_obj)
                         if not parent_obj:
                             delete_attr(
@@ -130,6 +122,12 @@ class MapField(FieldBase):
                         obj.pop(target_route[-1])
                     else:
                         delattr(obj, target_route[-1])
+                    if getattr(self, "clear_parent", False):
+                        is_non_empty = bool(obj) if isinstance(obj, dict) \
+                            else bool(obj.__dict__)
+                        print(is_non_empty)
+                        if not is_non_empty and target_route[:-1]:
+                            delete_attr(target, target_route[:-1])
             except (AttributeError, KeyError):
                 return
 
