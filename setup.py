@@ -7,7 +7,7 @@ from setuptools import setup, find_packages
 
 dependencies = ["six==1.10.0"]
 desc = "Object Model Mapper for Python-based web apps and/or APIs"
-version = "0.5.2"
+version = "0.5.3"
 if sys.version_info < (2, 7):
     raise RuntimeError("Not supported on earlier then python 2.7.")
 
