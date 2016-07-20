@@ -5,7 +5,7 @@
 
 import re
 from functools import reduce
-from .helper import reduce_with_index
+from .helper import reduce_with_index, shrink_list
 
 
 class FieldBase(object):
@@ -90,9 +90,7 @@ class MapField(FieldBase):
                 parent_obj = None
                 try:
                     parent_obj = reduce(
-                        self.__lookup,
-                        target_route[:-2],
-                        target
+                        self.__lookup, target_route[:-2], target
                     )
                 except IndexError:
                     pass
@@ -121,17 +119,11 @@ class MapField(FieldBase):
                                     del parent_obj[index[-2]]
                                 else:
                                     parent_obj[index[-2]] = None
-                            elif isinstance(parent_obj, dict):
-                                parent_obj.pop(name)
-                            else:
-                                delattr(parent_obj, name)
-                        if not obj:
+                        shrink_list(parent_obj)
+                        if not parent_obj:
                             delete_attr(
                                 target,
-                                (".").join(target_route[:-1]) + "[" +
-                                ("][").join([
-                                    str(el) for el in index[:-1]
-                                ]) + "]"
+                                target_route[:-1] + [name]
                             )
                 else:
                     if isinstance(obj, dict):

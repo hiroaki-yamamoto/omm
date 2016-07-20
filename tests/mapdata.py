@@ -263,6 +263,9 @@ class ArrayMapTestSchemaWithClear(omm.Mapper):
             def __init__(self, correct):
                 self.correct = correct
 
+            def __eq__(self, other):
+                return self.correct == other.correct
+
         class Test(object):
 
             def __init__(self):

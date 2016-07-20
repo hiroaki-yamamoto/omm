@@ -288,7 +288,7 @@ class ArraytMapperClearParentTest(TestCase):
         )
         del self.mapper.first_mid
         with self.assertRaises(AttributeError):
-            self.data.test.array
+            print(self.data.test.array)
 
 
 class ArrayElementMapperDeletionTest(TestCase):

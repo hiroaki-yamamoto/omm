@@ -49,3 +49,47 @@ class ReduceErrorTest(ut.TestCase):
             "reduce_with_index() of empty sequence with no initial value"
         )
         self.assertFalse(self.func.called)
+
+
+class ShrinkListAsIsTest(ut.TestCase):
+    """Test for shrink_list with un-shrinkable list."""
+
+    def setUp(self):
+        """Setup."""
+        self.shrink_list = omm.helper.shrink_list
+        self.data = ["a", "b", "a", "a", "a"]
+
+    def test_shrink_list(self):
+        """The value should be returned as it is."""
+        result = self.shrink_list(self.data)
+        self.assertListEqual(result, self.data)
+
+
+class ShrinkListShrink(ut.TestCase):
+    """Test for shrink_list with shrinkable list."""
+
+    def setUp(self):
+        """Setup."""
+        self.shrink_list = omm.helper.shrink_list
+        self.data = ["a", "b", "a", "a", "a", None, None]
+        self.correct = self.data[:-2]
+
+    def test_shrink_list(self):
+        """The result should be shrinked."""
+        result = self.shrink_list(self.data)
+        self.assertListEqual(result, self.correct)
+
+
+class ShrinkListShrinkWithValue(ut.TestCase):
+    """Test for shrink_list with shrinkable list and value."""
+
+    def setUp(self):
+        """Setup."""
+        self.shrink_list = omm.helper.shrink_list
+        self.data = ["a", "b", "a", "a", "a"]
+        self.correct = self.data[:2]
+
+    def test_shrink_list(self):
+        """The result should be shrinked."""
+        result = self.shrink_list(self.data, value="a")
+        self.assertListEqual(result, self.correct)
