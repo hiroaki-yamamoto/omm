@@ -125,7 +125,6 @@ class MapField(FieldBase):
                     if getattr(self, "clear_parent", False):
                         is_non_empty = bool(obj) if isinstance(obj, dict) \
                             else bool(obj.__dict__)
-                        print(is_non_empty)
                         if not is_non_empty and target_route[:-1]:
                             delete_attr(target, target_route[:-1])
             except (AttributeError, KeyError):
