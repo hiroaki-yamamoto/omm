@@ -24,7 +24,7 @@ class DumpsTest(TestCase):
     def test_dumps(self):
         """Serialize function should return proper value."""
         result = self.mapper.dumps(self.serialization)
-        self.mapper.to_dict.assert_called_once_with()
+        self.mapper.to_dict.assert_called_once_with("custom")
         self.serialization.assert_called_once_with(
             self.mapper.to_dict.return_value
         )
@@ -45,7 +45,7 @@ class LoadsTest(TestCase):
         data = "something"
         result = self.mapper.loads(self.deser_fn, data)
         self.mapper.from_dict.assert_called_once_with(
-            self.deser_fn.return_value
+            self.deser_fn.return_value, "custom"
         )
         self.deser_fn.assert_called_once_with(data)
         self.assertIs(result, self.mapper.from_dict.return_value)

@@ -220,9 +220,12 @@ class Mapper(six.with_metaclass(MetaMapper)):
         """
         self._target = target
 
-    def __compose_dict(self, priority_list):
+    def __compose_dict(self, priority_list, exclude_type):
         dct = {}
         for (name, fld) in self.fields.items():
+            exclude = getattr(fld, "exclude", False)
+            if exclude:
+                continue
             try:
                 value = getattr(self, name)
                 found_ser_fn = False
@@ -241,10 +244,13 @@ class Mapper(six.with_metaclass(MetaMapper)):
         return dct
 
     @classmethod
-    def __restore_dict(cls, dct, attr_call_list):
+    def __restore_dict(cls, dct, attr_call_list, exlcude_type):
         ret = cls()
         for (name, value) in dct.items():
             if hasattr(cls, name):
+                exclude = getattr(getattr(cls, name), "exclude", False)
+                if exclude:
+                    continue
                 try:
                     set_cast = getattr(cls, name).set_cast
                     found_desr_fn = False
@@ -271,28 +277,28 @@ class Mapper(six.with_metaclass(MetaMapper)):
                     setattr(ret, name, value)
         return ret
 
-    def to_dict(self):
+    def to_dict(self, exclude_type="dict"):
         """Convert the schema into dict."""
-        return self.__compose_dict([(None, "to_dict")])
+        return self.__compose_dict([(None, "to_dict")], exclude_type)
 
     @classmethod
-    def from_dict(cls, dct):
+    def from_dict(cls, dct, exclude_type="dict"):
         """
         Convert the given dict into the schema.
 
         Parameters:
             dct: The dict to be deserialize.
         """
-        return cls.__restore_dict(dct, [("from_dict", None)])
+        return cls.__restore_dict(dct, [("from_dict", None)], exclude_type)
 
-    def dumps(self, ser_fn):
+    def dumps(self, ser_fn, exclude_type="custom"):
         """Serialize the map with specified function."""
-        return ser_fn(self.to_dict())
+        return ser_fn(self.to_dict(exclude_type))
 
     @classmethod
-    def loads(self, desr_fn, data):
+    def loads(self, desr_fn, data, exclude_type="custom"):
         """Deserialize the map with specified function."""
-        return self.from_dict(desr_fn(data))
+        return self.from_dict(desr_fn(data), exclude_type)
 
     def to_json(self, **kwargs):
         """
@@ -303,7 +309,7 @@ class Mapper(six.with_metaclass(MetaMapper)):
         """
         return json.dumps(self.__compose_dict([
             (json.loads, "to_json"), (None, "to_dict")
-        ]))
+        ], "json"))
 
     @classmethod
     def from_json(cls, json_str, **kwargs):
@@ -316,7 +322,8 @@ class Mapper(six.with_metaclass(MetaMapper)):
         """
         return cls.__restore_dict(
             json.loads(json_str, **kwargs),
-            [("from_json", json.dumps), ("from_dict", None)]
+            [("from_json", json.dumps), ("from_dict", None)],
+            "json"
         )
 
     @property
