@@ -79,7 +79,7 @@ class SpecificExclusionTypeTest(TestCase):
 
 
 class MethodBasedExclusionTest(TestCase):
-    """Simple Exclusion case."""
+    """Method Based Exclusion case."""
 
     def setUp(self):
         """Setup."""
@@ -106,4 +106,66 @@ class MethodBasedExclusionTest(TestCase):
         result = self.cls.from_json(json.dumps(self.dct))
         with self.assertRaises(AttributeError):
             print(result.name)
+        self.assertEqual(result.age, self.dct["age"])
+
+
+class MethodAndDictCompoundExclusionTest(TestCase):
+    """Simple Exclusion case."""
+
+    def setUp(self):
+        """Setup."""
+        class ExclusionMapper(SimpleTestMapper):
+            age = omm.MapField(
+                "test.age", exclude={
+                    "json": True,
+                    "dict": False,
+                    "custom": False
+                }, exclude_serialize={
+                    "json": False,
+                    "dict": False,
+                    "custom": True
+                }, exclude_deserialize={
+                    "json": True,
+                    "dict": True,
+                }
+            )
+
+        self.cls = ExclusionMapper
+        self.data = self.cls(self.cls.generate_test_data(True))
+        self.dct = {
+            "name": self.data.name,
+            "age": self.data.age,
+            "sex": self.data.sex
+        }
+
+    def test_serialization_json(self):
+        """The result should contain age."""
+        result = self.data.to_json()
+        self.assertIn("age", result)
+
+    def test_deserialization_json(self):
+        """The result shouldn't have age."""
+        result = self.cls.from_json(json.dumps(self.dct))
+        with self.assertRaises(AttributeError):
+            print(result.age)
+
+    def test_serialization_dict(self):
+        """The result should contain age."""
+        result = self.data.to_dict()
+        self.assertIn("age", result)
+
+    def test_deserialization_dict(self):
+        """The result shouldn't have age."""
+        result = self.cls.from_dict(self.dct)
+        with self.assertRaises(AttributeError):
+            print(result.age)
+
+    def test_serialization_custom(self):
+        """The result shouldn't contain age."""
+        result = self.data.dumps(dict)
+        self.assertNotIn("age", result)
+
+    def test_deserialization_custom(self):
+        """The result should contain age."""
+        result = self.cls.loads(dict, self.dct)
         self.assertEqual(result.age, self.dct["age"])

@@ -223,9 +223,15 @@ class Mapper(six.with_metaclass(MetaMapper)):
     @staticmethod
     def __extend_exclusion(fld, exclude_type, ser_type):
         exclude = getattr(fld, "exclude", None)
-        if exclude is None:
-            exclude = getattr(fld, ("exclude_{}").format(ser_type), None)
+        exclude_method = getattr(fld, ("exclude_{}").format(ser_type), None)
+
+        if exclude is None and exclude_method is not None:
+            exclude = exclude_method
+
         if isinstance(exclude, dict):
+            if isinstance(exclude_method, dict) and \
+                    exclude is not exclude_method:
+                exclude.update(exclude_method)
             exclude = exclude.get(exclude_type, False)
         return exclude
 
