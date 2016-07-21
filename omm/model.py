@@ -220,11 +220,17 @@ class Mapper(six.with_metaclass(MetaMapper)):
         """
         self._target = target
 
+    @staticmethod
+    def __extend_exclusion(fld, exclude_type):
+        exclude = getattr(fld, "exclude", False)
+        if isinstance(exclude, dict):
+            exclude = exclude.get(exclude_type, False)
+        return exclude
+
     def __compose_dict(self, priority_list, exclude_type):
         dct = {}
         for (name, fld) in self.fields.items():
-            exclude = getattr(fld, "exclude", False)
-            if exclude:
+            if self.__extend_exclusion(fld, exclude_type):
                 continue
             try:
                 value = getattr(self, name)
@@ -244,15 +250,15 @@ class Mapper(six.with_metaclass(MetaMapper)):
         return dct
 
     @classmethod
-    def __restore_dict(cls, dct, attr_call_list, exlcude_type):
+    def __restore_dict(cls, dct, attr_call_list, exclude_type):
         ret = cls()
         for (name, value) in dct.items():
-            if hasattr(cls, name):
-                exclude = getattr(getattr(cls, name), "exclude", False)
-                if exclude:
+            fld = cls._fields.get(name)
+            if fld:
+                if cls.__extend_exclusion(fld, exclude_type):
                     continue
                 try:
-                    set_cast = getattr(cls, name).set_cast
+                    set_cast = fld.set_cast
                     found_desr_fn = False
                     if isinstance(set_cast, list):
                         set_cast = set_cast[-1]
