@@ -220,19 +220,60 @@ class Mapper(six.with_metaclass(MetaMapper)):
         """
         self._target = target
 
-    def to_dict(self):
-        """Convert the schema into dict."""
+    def __compose_dict(self, priority_list):
         dct = {}
         for (name, fld) in self.fields.items():
             try:
                 value = getattr(self, name)
-                try:
-                    dct[name] = value.to_dict()
-                except AttributeError:
+                found_ser_fn = False
+                for (loads, dumps) in priority_list:
+                    try:
+                        dct[name] = loads(getattr(value, dumps)()) if loads\
+                            else getattr(value, dumps)()
+                        found_ser_fn = True
+                        break
+                    except AttributeError:
+                        continue
+                if not found_ser_fn:
                     dct[name] = value
             except AttributeError:
                 pass
         return dct
+
+    @classmethod
+    def __restore_dict(cls, dct, attr_call_list):
+        ret = cls()
+        for (name, value) in dct.items():
+            if hasattr(cls, name):
+                try:
+                    set_cast = getattr(cls, name).set_cast
+                    found_desr_fn = False
+                    if isinstance(set_cast, list):
+                        set_cast = set_cast[-1]
+                    for (loads_attr, dumps_fn) in attr_call_list:
+                        try:
+                            setattr(
+                                ret, name, getattr(
+                                    set_cast, loads_attr
+                                )(
+                                    dumps_fn({name: value})
+                                    if dumps_fn else
+                                    {name: value}
+                                )
+                            )
+                            found_desr_fn = True
+                            break
+                        except AttributeError:
+                            continue
+                    if not found_desr_fn:
+                        raise AttributeError()
+                except AttributeError:
+                    setattr(ret, name, value)
+        return ret
+
+    def to_dict(self):
+        """Convert the schema into dict."""
+        return self.__compose_dict([(None, "to_dict")])
 
     @classmethod
     def from_dict(cls, dct):
@@ -242,19 +283,7 @@ class Mapper(six.with_metaclass(MetaMapper)):
         Parameters:
             dct: The dict to be deserialize.
         """
-        ret = cls()
-        for (name, value) in dct.items():
-            if hasattr(cls, name):
-                try:
-                    set_cast = getattr(cls, name).set_cast
-                    if isinstance(set_cast, list):
-                        set_cast = set_cast[-1]
-                    setattr(ret, name, set_cast.from_dict(
-                        {name: value}
-                    ))
-                except AttributeError:
-                    setattr(ret, name, value)
-        return ret
+        return cls.__restore_dict(dct, [("from_dict", None)])
 
     def dumps(self, ser_fn):
         """Serialize the map with specified function."""
@@ -272,16 +301,9 @@ class Mapper(six.with_metaclass(MetaMapper)):
         Parameters:
             **kwargs: Any keyword arguemnt to be passed to json.dumps
         """
-        dct = {}
-        for (name, field) in self.fields.items():
-            try:
-                dct[name] = getattr(self, name)
-                dct[name] = json.loads(
-                    dct[name].to_json(**kwargs)
-                ) if hasattr(dct[name], "to_json") else dct[name].to_dict()
-            except AttributeError:
-                continue
-        return json.dumps(dct)
+        return json.dumps(self.__compose_dict([
+            (json.loads, "to_json"), (None, "to_dict")
+        ]))
 
     @classmethod
     def from_json(cls, json_str, **kwargs):
@@ -292,23 +314,10 @@ class Mapper(six.with_metaclass(MetaMapper)):
             json_str: JSON string to be deserialized
             **kwargs: Any keyword arguments to be passed to json.loads
         """
-        ret = cls()
-        dct = json.loads(json_str, **kwargs)
-        for (name, value) in dct.items():
-            if hasattr(cls, name):
-                try:
-                    set_cast = getattr(cls, name).set_cast
-                    if isinstance(set_cast, list):
-                        set_cast = set_cast[-1]
-                    setattr(
-                        ret, name, set_cast.from_json(
-                            json.dumps({name: value})
-                        ) if hasattr(set_cast, "from_json")
-                        else set_cast.from_dict({name: value})
-                    )
-                except AttributeError:
-                    setattr(ret, name, value)
-        return ret
+        return cls.__restore_dict(
+            json.loads(json_str, **kwargs),
+            [("from_json", json.dumps), ("from_dict", None)]
+        )
 
     @property
     def fields(self):
