@@ -256,6 +256,15 @@ class Mapper(six.with_metaclass(MetaMapper)):
                     setattr(ret, name, value)
         return ret
 
+    def dumps(self, ser_fn):
+        """Serialize the map with specified function."""
+        return ser_fn(self.to_dict())
+
+    @classmethod
+    def loads(self, desr_fn, data):
+        """Deserialize the map with specified function."""
+        return self.from_dict(desr_fn(data))
+
     def to_json(self, **kwargs):
         """
         Generate JSON string.
