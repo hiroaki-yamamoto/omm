@@ -7,7 +7,7 @@ from setuptools import setup, find_packages
 
 dependencies = ["six==1.10.0"]
 desc = "Object Model Mapper for Python-based web apps and/or APIs"
-version = "0.5.3"
+version = "0.8.0"
 if sys.version_info < (2, 7):
     raise RuntimeError("Not supported on earlier then python 2.7.")
 
@@ -31,7 +31,7 @@ setup(
     keywords="json OMM Object Model Mapper Relational Document",
     url="https://github.com/hiroaki-yamamoto/omm.git",
     classifiers=[
-        "Development Status :: 3 - Alpha",
+        "Development Status :: 4 - Beta",
         "License :: OSI Approved :: MIT License",
         "Programming Language :: Python :: 2.7",
         "Programming Language :: Python :: 3.5"
