@@ -221,8 +221,10 @@ class Mapper(six.with_metaclass(MetaMapper)):
         self._target = target
 
     @staticmethod
-    def __extend_exclusion(fld, exclude_type):
-        exclude = getattr(fld, "exclude", False)
+    def __extend_exclusion(fld, exclude_type, ser_type):
+        exclude = getattr(fld, "exclude", None)
+        if exclude is None:
+            exclude = getattr(fld, ("exclude_{}").format(ser_type), None)
         if isinstance(exclude, dict):
             exclude = exclude.get(exclude_type, False)
         return exclude
@@ -230,7 +232,7 @@ class Mapper(six.with_metaclass(MetaMapper)):
     def __compose_dict(self, priority_list, exclude_type):
         dct = {}
         for (name, fld) in self.fields.items():
-            if self.__extend_exclusion(fld, exclude_type):
+            if self.__extend_exclusion(fld, exclude_type, "serialize"):
                 continue
             try:
                 value = getattr(self, name)
@@ -255,7 +257,7 @@ class Mapper(six.with_metaclass(MetaMapper)):
         for (name, value) in dct.items():
             fld = cls._fields.get(name)
             if fld:
-                if cls.__extend_exclusion(fld, exclude_type):
+                if cls.__extend_exclusion(fld, exclude_type, "deserialize"):
                     continue
                 try:
                     set_cast = fld.set_cast
