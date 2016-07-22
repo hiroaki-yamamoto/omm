@@ -225,7 +225,10 @@ class Mapper(six.with_metaclass(MetaMapper)):
         exclude = getattr(fld, "exclude", None)
         exclude_method = getattr(fld, ("exclude_{}").format(ser_type), None)
 
-        if not exclude and exclude_method is not None:
+        if any([
+            not (exclude or exclude_method is None),
+            exclude_method is True, exclude_method is False
+        ]):
             exclude = exclude_method
 
         if isinstance(exclude, dict):
