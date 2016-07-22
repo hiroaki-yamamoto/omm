@@ -309,7 +309,13 @@ class Mapper(six.with_metaclass(MetaMapper)):
         return cls.__restore_dict(dct, [("from_dict", None)], exclude_type)
 
     def dumps(self, ser_fn, exclude_type="custom"):
-        """Serialize the map with specified function."""
+        """
+        Serialize the map with specified function.
+
+        Parameters:
+            ser_fn: Serializatoin Function.
+            exclude_type: The type of exclusion.
+        """
         return ser_fn(self.to_dict(exclude_type))
 
     @classmethod

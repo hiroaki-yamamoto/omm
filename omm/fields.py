@@ -44,6 +44,26 @@ class MapField(FieldBase):
                 This argument should be callable.
             clear_parent: clear the parent's value if this value is true and
                 when __delete__ descriptor is called.
+            exclude: Set True if you want to prevent
+                serializatoin and deserialization from all
+                type of method. If you want to prevent serialization and
+                deserialization from specific type, set dict to this option.
+                For example, the following code means "Exclude this field from
+                serialization and deserialization if the types are json and
+                msgpack." Btw, msgpack type can be defined by specifying
+                `exclusion_type` at loads and dumps of the model.
+                ```python
+                MapField("test.obj", exclude={
+                    "json": True,
+                    "dict": False,
+                    "custom": False,
+                    "msgpack": True
+                })
+                ```
+            exclude_serialize: Set True or the dict described above
+                if you want to exclude this field from serialization.
+            exclude_deserialize: Set True or the dict described above
+                if you want to exclude this field from deserialization.
             (Other arguments): They are treated as meta-data.
         """
         super(MapField, self).__init__()
