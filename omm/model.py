@@ -12,6 +12,7 @@ import six
 
 from .fields import FieldBase
 from .helper import reduce_with_index
+from .structures import ConDict
 
 
 class MetaMapper(type):
@@ -219,6 +220,8 @@ class Mapper(six.with_metaclass(MetaMapper)):
             target: The target object.
         """
         self._target = target
+        if isinstance(target, ConDict):
+            self._target.assign(self)
 
     @staticmethod
     def __extend_exclusion(fld, exclude_type, ser_type):

@@ -56,3 +56,31 @@ def shrink_list(lst, value=None):
     while lst and lst[-1] == value:
         lst.pop()
     return lst
+
+
+def delete_elem(target, name):
+    """
+    Delete/pop the name.
+
+    Parameters:
+        target: The target object or dict
+        name: The name of the element to be deleted.
+    """
+    if isinstance(target, dict):
+        target.pop(name, name)
+    else:
+        delattr(target, name)
+
+
+def safe_delete_array_elem(target, index):
+    """
+    Unset array element safely.
+
+    Parameters:
+        target: The target array.
+        index: The target index.
+    """
+    if len(target) == index + 1:
+        del target[index]
+    else:
+        target[index] = None

@@ -5,7 +5,9 @@
 
 import re
 from functools import reduce
-from .helper import reduce_with_index, shrink_list
+from .helper import (
+    reduce_with_index, shrink_list, delete_elem, safe_delete_array_elem
+)
 
 
 class FieldBase(object):
@@ -97,65 +99,61 @@ class MapField(FieldBase):
             # If the object is None, the field is referenced from class
             # definition. In this case, the field should return self.
             return self
-        data = self.__get_connected_object(obj)
+        data = None
+        try:
+            data = self.__get_connected_object(obj)
+        except KeyError:
+            data = None
         attrs = self.target.split(".")
         ret = reduce(self.__lookup, attrs, data)
         if hasattr(self, "get_cast") and not isinstance(ret, self.get_cast):
             ret = self.get_cast(ret)
         return ret
 
+    def __delete_attr(self, target, target_route):
+        try:
+            obj = reduce(self.__lookup, target_route[:-1], target)
+            parent_obj = reduce(self.__lookup, target_route[:-2], target)
+            (name, index) = self.__split_name_index(target_route[-1])
+            if index:
+                parent_obj = obj
+                obj = self.__lookup(obj, name)
+                parent_obj = reduce(lambda v, i: v[i], index[:-2], obj)
+                obj = reduce(lambda v, i: v[i], index[:-1], obj)
+
+                safe_delete_array_elem(obj, index[-1])
+
+                if getattr(self, "clear_parent", False):
+                    is_empty = all(
+                        [el is None for el in obj] +
+                        [isinstance(parent_obj, list)]
+                    )
+                    if is_empty:
+                        safe_delete_array_elem(parent_obj, index[-2])
+                    shrink_list(parent_obj)
+                    if not parent_obj:
+                        self.__delete_attr(
+                            target,
+                            target_route[:-1] + [name]
+                        )
+            else:
+                delete_elem(obj, target_route[-1])
+                if getattr(self, "clear_parent", False):
+                    is_empty = not(
+                        bool(obj)
+                        if isinstance(obj, dict) else
+                        bool(obj.__dict__)
+                    )
+                    if all([is_empty, target_route[:-1]]):
+                        self.__delete_attr(target, target_route[:-1])
+        except (AttributeError, KeyError):
+            return
+
     def __delete__(self, instance):
         """Delete descriptor."""
         target = self.__get_connected_object(instance)
         target_route = self.target.split(".")
-
-        def delete_attr(target, target_route):
-            try:
-                obj = reduce(self.__lookup, target_route[:-1], target)
-                parent_obj = reduce(self.__lookup, target_route[:-2], target)
-                (name, index) = self.__split_name_index(target_route[-1])
-                if index:
-                    parent_obj = obj
-                    obj = obj[name] if isinstance(obj, dict) \
-                        else getattr(obj, name)
-                    parent_obj = reduce(lambda v, i: v[i], index[:-2], obj)
-                    obj = reduce(lambda v, i: v[i], index[:-1], obj)
-
-                    if len(obj) == index[-1] + 1:
-                        del obj[index[-1]]
-                    else:
-                        obj[index[-1]] = None
-
-                    if getattr(self, "clear_parent", False):
-                        is_empty = all(
-                            [el is None for el in obj] +
-                            [isinstance(parent_obj, list)]
-                        )
-                        if is_empty:
-                            if len(parent_obj) == index[-2] + 1:
-                                del parent_obj[index[-2]]
-                            else:
-                                parent_obj[index[-2]] = None
-                        shrink_list(parent_obj)
-                        if not parent_obj:
-                            delete_attr(
-                                target,
-                                target_route[:-1] + [name]
-                            )
-                else:
-                    if isinstance(obj, dict):
-                        obj.pop(target_route[-1])
-                    else:
-                        delattr(obj, target_route[-1])
-                    if getattr(self, "clear_parent", False):
-                        is_non_empty = bool(obj) if isinstance(obj, dict) \
-                            else bool(obj.__dict__)
-                        if not is_non_empty and target_route[:-1]:
-                            delete_attr(target, target_route[:-1])
-            except (AttributeError, KeyError):
-                return
-
-        delete_attr(target, target_route)
+        self.__delete_attr(target, target_route)
 
     def _cast_type(self, index, default=__NotSpecifiedYet__, index_only=False):
         ret = None
@@ -253,10 +251,17 @@ class MapField(FieldBase):
                 )
             return (result, delay + len(indexes))
 
-        if not self.__get_connected_object(obj):
-            obj.connect(
-                self._cast_type(0, dict if asdict else GeneratedObject)()
-            )
+        try:
+            if not self.__get_connected_object(obj):
+                obj.connect(
+                    self._cast_type(0, dict if asdict else GeneratedObject)()
+                )
+        except KeyError:
+            index = list(obj.fields.values()).index(self)
+            field_name = list(obj.fields.keys())[index]
+            obj.connected_object[field_name] = self._cast_type(
+                0, dict if asdict else GeneratedObject
+            )()
         last_indexes = [
             int(index_str)
             for index_str in self.__index_find_pattern__.findall(attrs[-1])

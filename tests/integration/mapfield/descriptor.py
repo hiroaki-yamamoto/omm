@@ -13,7 +13,7 @@ from ...mapdata import (
     SimpleTestMapper, DictSimpleTestSchema,
     ArrayMapTestSchema, ArrayMapDictTestSchema
 )
-from omm import MapField
+from omm import MapField, ConDict
 
 
 class ObjectGetTest(ut.TestCase):
@@ -30,14 +30,6 @@ class ObjectGetTest(ut.TestCase):
         self.assertEqual(self.schema.age, self.data.test.age)
         self.assertEqual(self.schema.sex, self.data.test.sex)
 
-
-class ObjectSetTest(ut.TestCase):
-    """MapField.__set__ test (object)."""
-
-    def setUp(self):
-        """Setup the function."""
-        self.schema = SimpleTestMapper()
-
     def test_set(self):
         """set descriptor should work properly."""
         self.schema.name = "Test"
@@ -48,6 +40,114 @@ class ObjectSetTest(ut.TestCase):
         self.assertEqual(obj.test.name, self.schema.name)
         self.assertEqual(obj.test.age, self.schema.age)
         self.assertEqual(obj.test.sex, self.schema.sex)
+
+
+class MultipleObjectAssignmentTest(ut.TestCase):
+    """MapField descriptors should work on multiple model assigned case."""
+
+    def setUp(self):
+        """Setup."""
+        self.correct = type("testobj", (object, ), {})
+        self.correct.name = "Hanako Yamada"
+        self.correct.age = 29
+        self.correct.sex = "Xe"
+
+        self.name = SimpleTestMapper.generate_test_data()
+        self.name.test.name = self.correct.name
+        self.name.test.age = 999
+        self.name.test.sex = "Male"
+
+        self.age = SimpleTestMapper.generate_test_data()
+        self.age.test.name = "Anonymouse Corward"
+        self.age.test.age = self.correct.age
+        self.age.test.sex = "Female"
+
+        self.sex = SimpleTestMapper.generate_test_data()
+        self.sex.test.name = "King of United States"
+        self.sex.test.age = 672
+        self.sex.test.sex = self.correct.sex
+
+        self.map = SimpleTestMapper(ConDict({
+            "name": self.name,
+            "age": self.age,
+            "sex": self.sex
+        }))
+
+    def test_get(self):
+        """Get descriptor should work."""
+        self.assertIs(self.map.name, self.correct.name)
+        self.assertIs(self.map.age, self.correct.age)
+        self.assertIs(self.map.sex, self.correct.sex)
+
+    def test_set(self):
+        """Set descriptor should work."""
+        self.map.name = "Hello World"
+        self.map.age = 63
+        self.map.sex = "Unknown"
+
+        self.assertIs(self.name.test.name, "Hello World")
+        self.assertIsNot(self.age.test.name, self.map.name)
+        self.assertIsNot(self.sex.test.name, self.map.name)
+
+        self.assertIs(self.age.test.age, self.map.age)
+        self.assertIsNot(self.name.test.age, self.map.age)
+        self.assertIsNot(self.sex.test.age, self.map.age)
+
+        self.assertIs(self.sex.test.sex, self.map.sex)
+        self.assertIsNot(self.name.test.sex, self.map.sex)
+        self.assertIsNot(self.age.test.sex, self.map.sex)
+
+
+class LackingMultipleObjectAssignmentTest(ut.TestCase):
+    """MapField descriptors should work on multiple model assigned case."""
+
+    def setUp(self):
+        """Setup."""
+        self.correct = type("testobj", (object, ), {})
+        self.correct.name = "Hanako Yamada"
+        self.correct.age = 29
+
+        self.name = SimpleTestMapper.generate_test_data()
+        self.name.test.name = self.correct.name
+        self.name.test.age = 999
+        self.name.test.sex = "Male"
+
+        self.age = SimpleTestMapper.generate_test_data()
+        self.age.test.name = "Anonymouse Corward"
+        self.age.test.age = self.correct.age
+        self.age.test.sex = "Female"
+
+        self.map = SimpleTestMapper(ConDict({
+            "name": self.name,
+            "age": self.age
+        }))
+
+    def test_get(self):
+        """Get descriptor should work."""
+        self.assertIs(self.map.name, self.correct.name)
+        self.assertIs(self.map.age, self.correct.age)
+        with self.assertRaises(AttributeError):
+            print(self.map.sex)
+
+    def test_set(self):
+        """Set descriptor should work."""
+        self.map.name = "Hello World"
+        self.map.age = 63
+        self.map.sex = "Unknown"
+
+        self.assertIs(self.name.test.name, "Hello World")
+        self.assertIsNot(self.age.test.name, self.map.name)
+        with self.assertRaises(AttributeError):
+            print(self.sex.test.name)
+
+        self.assertIs(self.age.test.age, self.map.age)
+        self.assertIsNot(self.name.test.age, self.map.age)
+        with self.assertRaises(AttributeError):
+            print(self.sex.test.age)
+
+        self.assertIs(self.map.sex, "Unknown")
+        self.assertIsNot(self.name.test.sex, self.map.sex)
+        self.assertIsNot(self.age.test.sex, self.map.sex)
 
 
 class DictGetTest(ut.TestCase):
@@ -63,6 +163,20 @@ class DictGetTest(ut.TestCase):
         self.assertEqual(self.schema.name, self.data["test"]["name"])
         self.assertEqual(self.schema.age, self.data["test"]["age"])
         self.assertEqual(self.schema.sex, self.data["test"]["sex"])
+
+    def test_set(self):
+        """Setup set."""
+        self.schema.name = "Test"
+        self.schema.age = 28
+        self.schema.sex = None
+
+        self.assertDictEqual({
+            "test": {
+                "name": self.schema.name,
+                "age": self.schema.age,
+                "sex": self.schema.sex
+            }
+        }, self.schema.connected_object)
 
 
 class DictSetTest(ut.TestCase):
