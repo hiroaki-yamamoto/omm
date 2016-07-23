@@ -30,6 +30,10 @@ class ConDict(UserDict):
         """Return current model."""
         return self.__model
 
+    def __iter__(self):
+        """Return iterable."""
+        return iter(self.data)
+
     def __getitem__(self, name):
         """Get Item."""
         key = name

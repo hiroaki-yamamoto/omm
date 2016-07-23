@@ -87,6 +87,17 @@ class GetItemTest(TestData):
         with self.assertRaises(KeyError):
             print(self.dct[1])
 
+
+class ItemContainsTest(TestData):
+    """Item contains test."""
+
+    def setUp(self):
+        """Setup."""
+        super(ItemContainsTest, self).setUp()
+        self.map_cls = SimpleTestMapper
+        self.map = self.map_cls(self.dct)
+        self.dct.assign(self.map)
+
     def test_contains_by_name(self):
         """ConDict should contain name and age, but not cointans sex."""
         self.assertIn("name", self.dct)
@@ -101,3 +112,25 @@ class GetItemTest(TestData):
         self.assertIn(name, self.dct)
         self.assertIn(age, self.dct)
         self.assertNotIn(sex, self.dct)
+
+
+class ItemIterationTest(TestData):
+    """Item iteration test."""
+
+    def setUp(self):
+        """Setup."""
+        super(ItemIterationTest, self).setUp()
+        self.map_cls = SimpleTestMapper
+        self.map = self.map_cls(self.dct)
+        self.dct.assign(self.map)
+
+    def test_iter_count(self):
+        """len(map) should be proper."""
+        self.assertEqual(len(self.dct), 2)
+
+    def test_iter_list(self):
+        """The generated list should be proper."""
+        self.assertListEqual(
+            [key for key in self.dct],
+            [key for key in self.dct.data]
+        )
