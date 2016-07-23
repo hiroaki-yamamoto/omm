@@ -5,7 +5,6 @@
 """Mapper test case."""
 
 import unittest
-
 from omm import Mapper
 
 

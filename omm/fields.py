@@ -86,13 +86,18 @@ class MapField(FieldBase):
             result = reduce(lambda v, i: v[i], index, result)
         return result
 
+    def __get_connected_object(self, mapper_instance):
+        from .structures import ConDict
+        cobj = mapper_instance.connected_object
+        return cobj[self] if isinstance(cobj, ConDict) else cobj
+
     def __get__(self, obj, cls=None):
         """Get descriptor."""
         if obj is None:
             # If the object is None, the field is referenced from class
             # definition. In this case, the field should return self.
             return self
-        data = obj.connected_object
+        data = self.__get_connected_object(obj)
         attrs = self.target.split(".")
         ret = reduce(self.__lookup, attrs, data)
         if hasattr(self, "get_cast") and not isinstance(ret, self.get_cast):
@@ -101,7 +106,7 @@ class MapField(FieldBase):
 
     def __delete__(self, instance):
         """Delete descriptor."""
-        target = instance.connected_object
+        target = self.__get_connected_object(instance)
         target_route = self.target.split(".")
 
         def delete_attr(target, target_route):
@@ -248,7 +253,7 @@ class MapField(FieldBase):
                 )
             return (result, delay + len(indexes))
 
-        if not obj.connected_object:
+        if not self.__get_connected_object(obj):
             obj.connect(
                 self._cast_type(0, dict if asdict else GeneratedObject)()
             )
@@ -258,7 +263,7 @@ class MapField(FieldBase):
         ]
         last_attr = self.__index_find_pattern__.sub("", attrs[-1])
         target_obj = reduce_with_index(
-            get_or_create, attrs[:-1], (obj.connected_object, 0)
+            get_or_create, attrs[:-1], (self.__get_connected_object(obj), 0)
         )[0]
         if isinstance(target_obj, dict):
             target_obj[last_attr] = self.__correct_value(
