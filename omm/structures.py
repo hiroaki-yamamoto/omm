@@ -33,10 +33,18 @@ class ConDict(UserDict):
     def __getitem__(self, name):
         """Get Item."""
         if isinstance(name, str):
-            return self.data[name]
+            return self.data[name]  # <-- This is to avoid recursion loop
         elif isinstance(name, MapField):
             index = list(self.model.fields.values()).index(name)
             key = list(self.model.fields.keys())[index]
             return self[key]
         else:
             raise KeyError
+
+    def __contains__(self, item):
+        """Check if item exists."""
+        key = item
+        if isinstance(key, MapField):
+            index = list(self.model.fields.values()).index(key)
+            key = list(self.model.fields.keys())[index]
+        return key in self.data

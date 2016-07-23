@@ -86,3 +86,18 @@ class GetItemTest(TestData):
         """CondDict[int] should raise KeyError."""
         with self.assertRaises(KeyError):
             print(self.dct[1])
+
+    def test_contains_by_name(self):
+        """ConDict should contain name and age, but not cointans sex."""
+        self.assertIn("name", self.dct)
+        self.assertIn("age", self.dct)
+        self.assertNotIn("sex", self.dct)
+
+    def test_contains_by_field(self):
+        """ConDict should/shouldn't contain proper fields."""
+        name = self.map_cls.name
+        age = self.map_cls.age
+        sex = self.map_cls.sex
+        self.assertIn(name, self.dct)
+        self.assertIn(age, self.dct)
+        self.assertNotIn(sex, self.dct)
