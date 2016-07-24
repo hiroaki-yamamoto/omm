@@ -10,8 +10,9 @@ Note that this spec is INTEGRATION TEST!
 import unittest as ut
 
 from ...mapdata import (
-    SimpleTestMapper, DictSimpleTestSchema,
-    ArrayMapTestSchema, ArrayMapDictTestSchema
+    SimpleTestMapper, SimpleTestMapperWithSeperate,
+    DictSimpleTestSchema, ArrayMapTestSchema,
+    ArrayMapDictTestSchema
 )
 from omm import MapField, ConDict
 
@@ -40,6 +41,39 @@ class ObjectGetTest(ut.TestCase):
         self.assertEqual(obj.test.name, self.schema.name)
         self.assertEqual(obj.test.age, self.schema.age)
         self.assertEqual(obj.test.sex, self.schema.sex)
+
+
+class SeperatorTest(ut.TestCase):
+    """Seperator test."""
+
+    def setUp(self):
+        """Setup."""
+        self.data = SimpleTestMapperWithSeperate.generate_test_data()
+        self.cls = SimpleTestMapperWithSeperate
+        self.map = self.cls(self.data)
+
+    def test_get(self):
+        """__get__ descriptor should work."""
+        self.assertIs(self.map.name, self.data.test.name)
+        self.assertIs(self.map.age, getattr(self.data, "test.age"))
+        self.assertIs(self.map.sex, getattr(self.data, "test.sex"))
+
+    def test_set(self):
+        """__set__ descriptor should work."""
+        mapper = self.cls()
+        mapper.name = self.data.test.name
+        mapper.age = getattr(self.data, "test.age")
+        mapper.sex = getattr(self.data, "test.sex")
+
+        self.assertIs(self.map.name, self.data.test.name)
+        self.assertIs(self.map.age, getattr(self.data, "test.age"))
+        self.assertIs(self.map.sex, getattr(self.data, "test.sex"))
+
+        with self.assertRaises(AttributeError):
+            self.data.test.age
+
+        with self.assertRaises(AttributeError):
+            self.data.test.sex
 
 
 class MultipleObjectAssignmentTest(ut.TestCase):

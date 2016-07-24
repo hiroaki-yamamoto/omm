@@ -66,10 +66,13 @@ class MapField(FieldBase):
                 if you want to exclude this field from serialization.
             exclude_deserialize: Set True or the dict described above
                 if you want to exclude this field from deserialization.
+            sep_char: Seperation character. Note that this can be
+                multiple characters. By default, the value is '.'
             (Other arguments): They are treated as meta-data.
         """
         super(MapField, self).__init__()
         self.target = target
+        kwargs.setdefault("sep_char", ".")
         for (attr, value) in kwargs.items():
             setattr(self, attr, value)
 
@@ -104,7 +107,7 @@ class MapField(FieldBase):
             data = self.__get_connected_object(obj)
         except KeyError:
             data = None
-        attrs = self.target.split(".")
+        attrs = self.target.split(self.sep_char)
         ret = reduce(self.__lookup, attrs, data)
         if hasattr(self, "get_cast") and not isinstance(ret, self.get_cast):
             ret = self.get_cast(ret)
@@ -152,7 +155,7 @@ class MapField(FieldBase):
     def __delete__(self, instance):
         """Delete descriptor."""
         target = self.__get_connected_object(instance)
-        target_route = self.target.split(".")
+        target_route = self.target.split(self.sep_char)
         self.__delete_attr(target, target_route)
 
     def _cast_type(self, index, default=__NotSpecifiedYet__, index_only=False):
@@ -202,7 +205,7 @@ class MapField(FieldBase):
 
         If the validation is failed, ValueError is raised.
         """
-        attrs = self.target.split(".")
+        attrs = self.target.split(self.sep_char)
         num_cast = len(attrs) + len(
             self.__index_find_pattern__.findall(self.target)
         ) + 1
@@ -216,7 +219,7 @@ class MapField(FieldBase):
 
     def __set__(self, obj, value):
         """Set descriptor."""
-        attrs = self.target.split(".")
+        attrs = self.target.split(self.sep_char)
         self.validate()
         asdict = getattr(obj, "asdict", False)
         GeneratedObject = type("GeneratedObject", (object, ), {})

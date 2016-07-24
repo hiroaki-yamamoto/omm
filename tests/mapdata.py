@@ -51,6 +51,40 @@ class SimpleTestMapperWithClear(SimpleTestMapper):
     sex = omm.MapField("test.sex", clear_parent=True)
 
 
+class SimpleTestMapperWithSeperate(omm.Mapper):
+    """Simple mapper with sep_char flag."""
+
+    name = omm.MapField("test name", sep_char=" ")
+    age = omm.MapField("test.age", sep_char=" ")
+    sex = omm.MapField("test.sex", sep_char=" ")
+
+    @staticmethod
+    def generate_test_data(type_dict=False):
+        """
+        Generate test data.
+
+        Parameters:
+            type_dict: Set True if the data is expected to be typed as dict.
+        """
+        class User(object):
+            def __init__(self):
+                self.name = "Test Example"
+
+        class GenObj(object):
+            def __init__(self):
+                self.test = User()
+                setattr(self, "test.age", 20)
+                setattr(self, "test.sex", "Xe")
+
+        gen_obj = GenObj()
+
+        return {
+            "test": {"name": gen_obj.test.name},
+            "test.age": getattr(gen_obj, "test.age"),
+            "test.sex": getattr(gen_obj, "test.sex")
+        } if type_dict else gen_obj
+
+
 class SimpleTestSchemaWithSimpleCast(omm.Mapper):
     """Simple Test Data with casting."""
 
