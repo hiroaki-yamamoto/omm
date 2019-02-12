@@ -28,8 +28,8 @@ if path.exists(version_file):
 author = "Hiroaki Yamamoto"
 author_email = "hiroaki@hysoftware.net"
 
-if sys.version_info < (3, 6):
-    raise RuntimeError("Not supported on earlier then python 3.6.")
+if sys.version_info < (2, 7):
+    raise RuntimeError("Not supported on earlier then python 2.7.")
 
 try:
     with open('README.md') as readme:
