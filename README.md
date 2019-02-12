@@ -1,15 +1,15 @@
 # Object Model Mapper
 
-[![Build Status]][Build Status Link] [![Coverage Status]][Coverage Link]
-[![Code Health]][Landscape Link]
+[![CircleCI]][CircleCI Link]
+[![Maintainability]][Maintainability Link]
 [![PyPI version]][PyPI link]
 
 [Coverage Status]: https://coveralls.io/repos/github/hiroaki-yamamoto/omm/badge.svg?branch=master
 [Coverage Link]: https://coveralls.io/github/hiroaki-yamamoto/omm?branch=master
-[Build Status]: https://travis-ci.org/hiroaki-yamamoto/omm.svg?branch=master
-[Build Status Link]: https://travis-ci.org/hiroaki-yamamoto/omm
-[Code Health]: https://landscape.io/github/hiroaki-yamamoto/omm/master/landscape.svg?style=flat
-[Landscape Link]: https://landscape.io/github/hiroaki-yamamoto/omm/master
+[CircleCI]: https://circleci.com/gh/hiroaki-yamamoto/omm.svg?style=svg
+[CircleCI Link]: https://circleci.com/gh/hiroaki-yamamoto/omm
+[Maintainability]: https://api.codeclimate.com/v1/badges/73d2a6e16877ee2855a7/maintainability
+[Maintainability Link]: https://codeclimate.com/github/hiroaki-yamamoto/omm/maintainability
 [PyPI version]: https://badge.fury.io/py/OMM.svg
 [PyPI link]: https://badge.fury.io/py/OMM
 
