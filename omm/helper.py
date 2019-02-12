@@ -6,7 +6,7 @@
 
 def reduce_with_index(fn, iterable, start=None, *args, **kwargs):
     """
-    A wrapper of functools.reduce, but this function puts index to fn.
+    Wrap functools.reduce, but this function puts index to fn.
 
     Parameters:
         fn: The function that should be called. fn requires the following
@@ -22,6 +22,7 @@ def reduce_with_index(fn, iterable, start=None, *args, **kwargs):
         reduce on the official python document.
         element: An element in the iteratable object.
         index: The position of element in the iteratable object.
+
     """
     it = iter(iterable)
     if start is None:
@@ -52,6 +53,7 @@ def shrink_list(lst, value=None):
     Example:
         [None, None, None, None] -- (shrink_list:value=None) --> []
         [1, 0, 0, 1, 0, 1] -- (shrink_list:value=1) --> [1, 0, 0, 1, 0]
+
     """
     while lst and lst[-1] == value:
         lst.pop()
@@ -65,6 +67,7 @@ def delete_elem(target, name):
     Parameters:
         target: The target object or dict
         name: The name of the element to be deleted.
+
     """
     if isinstance(target, dict):
         target.pop(name, name)
@@ -79,6 +82,7 @@ def safe_delete_array_elem(target, index):
     Parameters:
         target: The target array.
         index: The target index.
+
     """
     if len(target) == index + 1:
         del target[index]

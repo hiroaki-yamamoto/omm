@@ -21,7 +21,7 @@ class ObjectGetTest(ut.TestCase):
     """MapField.__get__ test (object)."""
 
     def setUp(self):
-        """Setup the function."""
+        """Setup."""
         self.data = SimpleTestMapper.generate_test_data()
         self.schema = SimpleTestMapper(self.data)
 
@@ -32,7 +32,7 @@ class ObjectGetTest(ut.TestCase):
         self.assertEqual(self.schema.sex, self.data.test.sex)
 
     def test_set(self):
-        """set descriptor should work properly."""
+        """__set__ should work."""
         self.schema.name = "Test"
         self.schema.age = 28
         self.schema.sex = None
@@ -188,7 +188,7 @@ class DictGetTest(ut.TestCase):
     """MapField.__get__ test (dict)."""
 
     def setUp(self):
-        """Setup the function."""
+        """Setup."""
         self.data = SimpleTestMapper.generate_test_data(type_dict=True)
         self.schema = SimpleTestMapper(self.data)
 
@@ -217,7 +217,7 @@ class DictSetTest(ut.TestCase):
     """MapField.__set__ test (dict)."""
 
     def setUp(self):
-        """Setup function."""
+        """Setup."""
         self.schema = DictSimpleTestSchema()
 
     def test_set(self):
@@ -239,11 +239,11 @@ class ClsGetTest(ut.TestCase):
     """MapField.__get__ test (accessed from Mapper class declaration)."""
 
     def setUp(self):
-        """Setup the function."""
+        """Setup."""
         self.schema = SimpleTestMapper
 
     def test_cls_test(self):
-        """MapField should return itself when it is accessed from class."""
+        """Should return MapField itself when it is accessed from class."""
         self.assertIsInstance(self.schema.name, MapField)
         self.assertIsInstance(self.schema.age, MapField)
         self.assertIsInstance(self.schema.sex, MapField)
@@ -253,7 +253,7 @@ class ObjArrayGetTest(ut.TestCase):
     """Accessed from Mapper object, but target has array (target: obj)."""
 
     def setUp(self):
-        """Setup the function."""
+        """Setup."""
         self.data = ArrayMapTestSchema.generate_test_data()
         self.schema = ArrayMapTestSchema(self.data)
 
@@ -270,7 +270,7 @@ class ObjectArraySetTest(ut.TestCase):
     """Unit test for setting value to the mapping field."""
 
     def setUp(self):
-        """Setup the test."""
+        """Setup."""
         self.Schema = ArrayMapTestSchema
         self.schema = self.Schema()
         self.data = self.Schema.generate_test_data()
@@ -311,7 +311,7 @@ class DictArrayGetTest(ut.TestCase):
     """Accessed from Mapper object, but traget has array (target: dict)."""
 
     def setUp(self):
-        """Setup the function."""
+        """Setup."""
         self.data = ArrayMapTestSchema.generate_test_data(type_dict=True)
         self.schema = ArrayMapTestSchema(self.data)
 
@@ -328,7 +328,7 @@ class DictArraySetTest(ut.TestCase):
     """Unit test for setting value to the mapping field."""
 
     def setUp(self):
-        """Setup the test."""
+        """Setup."""
         self.schema = ArrayMapDictTestSchema()
         self.data = ArrayMapTestSchema.generate_test_data(type_dict=True)
         self.data["test"]["array"][1].pop()

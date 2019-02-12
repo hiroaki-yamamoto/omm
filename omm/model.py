@@ -19,7 +19,7 @@ class MetaMapper(type):
     """The meta class of Mapper."""
 
     def __init__(self, name, bases, members):
-        """New method."""
+        """Init."""
         self._fields = {}
         for (key, value) in members.items():
             if isinstance(value, FieldBase):
@@ -74,6 +74,7 @@ class Mapper(six.with_metaclass(MetaMapper)):
         Parameters:
             target: The target object. By default, None is set.
             **kwargs: Any attributes or meta-data.
+
         """
         if target is not None:
             self.connect(target)
@@ -109,6 +110,7 @@ class Mapper(six.with_metaclass(MetaMapper)):
         Parameters:
             fldname: The name of the field.
             err: The message
+
         """
         if isinstance(self.__errors.get(fldname), list):
             self.__errors[fldname].append(err)
@@ -132,7 +134,7 @@ class Mapper(six.with_metaclass(MetaMapper)):
             "This field partially references the same path of {source}, "
             "but set_cast corresponding to \"{fldname}\" is not the same."
         )
-        parse_pattern = re.compile("([^\.\[\]0-9]+)|\[([0-9]+)\]+")
+        parse_pattern = re.compile(r"([^\.\[\]0-9]+)|\[([0-9]+)\]+")
 
         def check_consistency_for_each_value(cur, attr, index,
                                              attrs, name, field):
@@ -218,6 +220,7 @@ class Mapper(six.with_metaclass(MetaMapper)):
 
         Parameters:
             target: The target object.
+
         """
         self._target = target
         if isinstance(target, ConDict):
@@ -308,6 +311,7 @@ class Mapper(six.with_metaclass(MetaMapper)):
 
         Parameters:
             dct: The dict to be deserialize.
+
         """
         return cls.__restore_dict(dct, [("from_dict", None)], exclude_type)
 
@@ -318,6 +322,7 @@ class Mapper(six.with_metaclass(MetaMapper)):
         Parameters:
             ser_fn: Serializatoin Function.
             exclude_type: The type of exclusion.
+
         """
         return ser_fn(self.to_dict(exclude_type))
 
@@ -332,6 +337,7 @@ class Mapper(six.with_metaclass(MetaMapper)):
 
         Parameters:
             **kwargs: Any keyword arguemnt to be passed to json.dumps
+
         """
         return json.dumps(self.__compose_dict([
             (json.loads, "to_json"), (None, "to_dict")
@@ -345,6 +351,7 @@ class Mapper(six.with_metaclass(MetaMapper)):
         Parameters:
             json_str: JSON string to be deserialized
             **kwargs: Any keyword arguments to be passed to json.loads
+
         """
         return cls.__restore_dict(
             json.loads(json_str, **kwargs),

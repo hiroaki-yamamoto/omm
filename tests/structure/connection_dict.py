@@ -99,13 +99,13 @@ class ItemContainsTest(TestData):
         self.dct.assign(self.map)
 
     def test_contains_by_name(self):
-        """ConDict should contain name and age, but not cointans sex."""
+        """Should contain name and age in ConDict, but not cointans sex."""
         self.assertIn("name", self.dct)
         self.assertIn("age", self.dct)
         self.assertNotIn("sex", self.dct)
 
     def test_contains_by_field(self):
-        """ConDict should/shouldn't contain proper fields."""
+        """Should or shouldn't contain proper fields in ConDict."""
         name = self.map_cls.name
         age = self.map_cls.age
         sex = self.map_cls.sex

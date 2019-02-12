@@ -16,7 +16,7 @@ class JSONSerializationTest(ut.TestCase):
     """Test case for json serialization/deserialization."""
 
     def setUp(self):
-        """Setup function."""
+        """Setup."""
         self.Schema = SimpleTestMapper
         self.test_data = self.Schema.generate_test_data()
         self.expected_data = {"name": "Test Example", "age": 960, "sex": None}
@@ -46,7 +46,7 @@ class JSONTransformInvocationTestWithCasting(ut.TestCase):
     """Test for to_dict invocation with casting."""
 
     def setUp(self):
-        """Setup the function."""
+        """Setup."""
         self.Schema = SimpleTestSchemaWithSimpleCast
         self.connected_data = self.Schema.generate_test_data()
         self.expected_data = {"name": 41561234, "age": 199}
@@ -72,7 +72,7 @@ class JSONTransformInvocationTestWithCastingHavingJSONFunc(ut.TestCase):
     """Test for to_dict invocation with casting."""
 
     def setUp(self):
-        """Setup the function."""
+        """Setup."""
         self.Schema = SimpleTestSchemaWithSimpleCastWithJSONFunction
         self.connected_data = self.Schema.generate_test_data()
         self.expected_data = {
@@ -104,7 +104,7 @@ class JSONTransformInvocationTestWithCastingHavingDictFunc(ut.TestCase):
     """Test for to_dict invocation with casting."""
 
     def setUp(self):
-        """Setup the function."""
+        """Setup."""
         self.Schema = SimpleTestSchemaWithSimpleCastWithDictFunction
         self.connected_data = self.Schema.generate_test_data()
         self.expected_data = {"name": 41561234, "age": 199}

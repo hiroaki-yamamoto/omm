@@ -12,7 +12,7 @@ class MapperMetadataTest(ut.TestCase):
     """Metadata check."""
 
     def setUp(self):
-        """Setup function."""
+        """Setup."""
         class TestSchema(omm.Mapper):
             name = omm.MapField("test.name")
 

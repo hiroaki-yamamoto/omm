@@ -19,7 +19,7 @@ class ObjectBasedSimpleCastingTest(TestCase):
     """Simple casting test for object-based schema."""
 
     def setUp(self):
-        """Setup the function."""
+        """Setup."""
         self.Schema = SimpleTestSchemaWithSimpleCast
         self.data = self.Schema.generate_test_data()
         self.schema = self.Schema(self.data)
@@ -46,7 +46,7 @@ class ObjectBasedComplexCastingTest(TestCase):
     """Complex casting test for object-based connection."""
 
     def setUp(self):
-        """Setup function."""
+        """Setup."""
         self.Schema = SimpleTestSchemaWithComplexCast1
         self.schema = self.Schema()
 
@@ -64,7 +64,7 @@ class ObjectBasedComplexCastingTestWithFirstDict(TestCase):
     """Complex casting test for object-based connection (2nd version)."""
 
     def setUp(self):
-        """Setup function."""
+        """Setup."""
         self.Schema = SimpleTestSchemaWithComplexCast2
         self.schema = self.Schema()
 
@@ -82,7 +82,7 @@ class ObjectBasedArrayCastingTest(TestCase):
     """Array casting test for object-based schema."""
 
     def setUp(self):
-        """Setup the function."""
+        """Setup."""
         self.Schema = ArrayMapCastingTestSchema
         self.data = self.Schema.generate_test_data()
         self.schema = self.Schema(self.data)
@@ -110,7 +110,7 @@ class ObjectBasedArrayComplexCastingTest(TestCase):
     """Test for complex casting with array."""
 
     def setUp(self):
-        """Setup function."""
+        """Setup."""
         self.Schema = ArrayMapComplexCastingTestSchema
         self.schema = self.Schema()
 
@@ -138,7 +138,7 @@ class DictBasedSimpleCastingTest(TestCase):
     """Simple casting test for dict-based schema."""
 
     def setUp(self):
-        """Setup the function."""
+        """Setup."""
         self.Schema = DictSimpleTestSchemaWithSimpleCast
         self.data = self.Schema.generate_test_data(asdict=True)
         self.schema = self.Schema(self.data)
@@ -165,7 +165,7 @@ class DictBasedComplexCastingTest(TestCase):
     """Complex casting test for dict-based connection."""
 
     def setUp(self):
-        """Setup function."""
+        """Setup."""
         self.Schema = DictSimpleTestSchemaWithComplexCast1
         self.schema = self.Schema()
 
@@ -183,7 +183,7 @@ class DictBasedComplexCastingTestWithFirstDict(TestCase):
     """Complex casting test for dict-based connection (2nd version)."""
 
     def setUp(self):
-        """Setup function."""
+        """Setup."""
         self.Schema = DictSimpleTestSchemaWithComplexCast2
         self.schema = self.Schema()
 
@@ -201,7 +201,7 @@ class DictBasedArrayCastingTest(TestCase):
     """Array casting test for object-based schema."""
 
     def setUp(self):
-        """Setup the function."""
+        """Setup."""
         self.Schema = ArrayMapDictCastingTestSchema
         self.data = self.Schema.generate_test_data(asdict=True)
         self.schema = self.Schema(self.data)
@@ -229,7 +229,7 @@ class ArrayMapDictComplexArrayCastingTest(TestCase):
     """Test for complex casting with array (dict version)."""
 
     def setUp(self):
-        """Setup function."""
+        """Setup."""
         self.Schema = ArrayMapDictComplexCastingTestSchema
         self.schema = self.Schema()
 
@@ -257,7 +257,7 @@ class InvalidCastLengthTest(TestCase):
     """Invalid casting length test."""
 
     def setUp(self):
-        """Setup the function."""
+        """Setup."""
         self.ObjectBasedSchema = InvalidCastingLengthTestSchema
         self.object_base = self.ObjectBasedSchema()
 

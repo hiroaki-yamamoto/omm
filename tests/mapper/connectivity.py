@@ -12,7 +12,7 @@ class MapperConnectivityTest(unittest.TestCase):
     """Test case for mapper initialization test."""
 
     def setUp(self):
-        """Setup the class."""
+        """Setup."""
         class TestClass(object):
             pass
         self.TestClass = TestClass
@@ -28,7 +28,7 @@ class MapperLazyConnectivityTest(unittest.TestCase):
     """Test case for mapper init test."""
 
     def setUp(self):
-        """Setup the class."""
+        """Setup."""
         self.TestClass = type("TestClass", (object, ), {})
         self.test_class = self.TestClass()
 

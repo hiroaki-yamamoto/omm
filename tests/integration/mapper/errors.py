@@ -7,7 +7,7 @@ import unittest as ut
 
 try:
     from unittest.mock import MagicMock
-except:
+except ImportError:
     from mock import MagicMock
 
 import omm
@@ -80,7 +80,7 @@ class FieldValidationTest(ut.TestCase):
     """validate() for each field should be called."""
 
     def setUp(self):
-        """Setup the function."""
+        """Setup."""
         class TestSchema(omm.Mapper):
             test = omm.MapField("test.example")
             test2 = omm.MapField("test.example2")

@@ -11,7 +11,7 @@ class MapperNoErrorTest(ut.TestCase):
     """The map has no errors."""
 
     def setUp(self):
-        """Setup the function."""
+        """Setup."""
         class TestSchema(omm.Mapper):
             pass
 

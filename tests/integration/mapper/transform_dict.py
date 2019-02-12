@@ -15,7 +15,7 @@ class DictTransformInvocationTest(ut.TestCase):
     """Test for to_dict invocation."""
 
     def setUp(self):
-        """Setup the function."""
+        """Setup."""
         self.Schema = SimpleTestMapper
         self.connected_data = self.Schema.generate_test_data()
         self.expected_data = {
@@ -51,7 +51,7 @@ class DictTransformInvocationTestWithCasting(ut.TestCase):
     """Test for to_dict invocation with casting."""
 
     def setUp(self):
-        """Setup the function."""
+        """Setup."""
         self.Schema = SimpleTestSchemaWithSimpleCast
         self.connected_data = self.Schema.generate_test_data()
         self.expected_data = {"name": 41561234, "age": 199}
@@ -77,7 +77,7 @@ class DictTransformInvocationTestWithCastingHavingDictFunc(ut.TestCase):
     """Test for to_dict invocation with casting."""
 
     def setUp(self):
-        """Setup the function."""
+        """Setup."""
         self.Schema = SimpleTestSchemaWithSimpleCastWithDictFunction
         self.connected_data = self.Schema.generate_test_data()
         self.expected_data = {"name": 41561234, "age": 199}

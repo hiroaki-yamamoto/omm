@@ -15,7 +15,7 @@ class ReduceWithoutInitTest(ut.TestCase):
     """Test for reduce(fn, it) test."""
 
     def setUp(self):
-        """Setup function."""
+        """Setup."""
         self.func = MagicMock(
             side_effect=lambda x, y, index: y
         )
@@ -34,7 +34,7 @@ class ReduceErrorTest(ut.TestCase):
     """Test for reduce(fn, it) test, but it is empty."""
 
     def setUp(self):
-        """Setup function."""
+        """Setup."""
         self.func = MagicMock(
             side_effect=lambda x, y, index: y
         )

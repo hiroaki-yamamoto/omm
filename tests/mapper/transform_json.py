@@ -17,7 +17,7 @@ class JSONInValueInvocationTest(ut.TestCase):
     """Test for calling (to|from)_json in the casted value."""
 
     def setUp(self):
-        """Setup function."""
+        """Setup."""
         class TestField(object):
             def __new__(cls, value):
                 cls.to_json = MagicMock(return_value=json.dumps(
@@ -83,7 +83,7 @@ class DictInvocationAsAlternativeTest(ut.TestCase):
     """Test for to_dict invocation."""
 
     def setUp(self):
-        """Setup function."""
+        """Setup."""
         class TestField(object):
             def __new__(cls, value):
                 cls.to_dict = MagicMock(return_value={"value": value})

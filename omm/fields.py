@@ -24,7 +24,7 @@ class FieldBase(object):
 class MapField(FieldBase):
     """Normal Map Field."""
 
-    __index_find_pattern__ = re.compile("\[([0-9])+\]+")
+    __index_find_pattern__ = re.compile(r"\[([0-9])+\]+")
     __NotSpecifiedYet__ = type("__NotSpecifiedYet__", (object, ), {})
     __GeneratedObject__ = type("__GeneratedObject__", (object, ), {})
 
@@ -69,6 +69,7 @@ class MapField(FieldBase):
             sep_char: Seperation character. Note that this can be
                 multiple characters. By default, the value is '.'
             (Other arguments): They are treated as meta-data.
+
         """
         super(MapField, self).__init__()
         self.target = target
@@ -128,8 +129,9 @@ class MapField(FieldBase):
 
                 if getattr(self, "clear_parent", False):
                     is_empty = all(
-                        [el is None for el in obj] +
-                        [isinstance(parent_obj, list)]
+                        [el is None for el in obj] + [
+                            isinstance(parent_obj, list)
+                        ]
                     )
                     if is_empty:
                         safe_delete_array_elem(parent_obj, index[-2])
@@ -301,5 +303,6 @@ class MapField(FieldBase):
 
         Parameters:
             value: The dot notated target.
+
         """
         self._target = value

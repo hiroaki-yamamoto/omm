@@ -21,6 +21,7 @@ class SimpleTestMapper(omm.Mapper):
 
         Parameters:
             type_dict: Set True if the data is expected to be typed as dict.
+
         """
         class User(object):
             def __init__(self):
@@ -65,6 +66,7 @@ class SimpleTestMapperWithSeperate(omm.Mapper):
 
         Parameters:
             type_dict: Set True if the data is expected to be typed as dict.
+
         """
         class User(object):
             def __init__(self):
@@ -126,15 +128,24 @@ class SimpleTestSchemaWithSimpleCastWithDictFunction(
     """Simple Test Data with casting, to_dict and from_dict in cast."""
 
     class BaseField(object):
+        """Base field."""
+
         def __init__(self, value):
+            """Init."""
             self.value = value
 
     class IntegerField(BaseField):
+        """Integer Field."""
+
         def to_dict(self):
+            """Convert to dict."""
             return int(self.value)
 
     class StringField(BaseField):
+        """String field."""
+
         def to_dict(self):
+            """Convert to dict."""
             return str(self.value)
 
     name = omm.MapField(
@@ -151,23 +162,34 @@ class SimpleTestSchemaWithSimpleCastWithJSONFunction(
     """Simple Test Data with casting, to_json and from_json in cast."""
 
     class BaseField(object):
+        """Base Field."""
+
         def __init__(self, value):
+            """Init."""
             self.value = value
 
     class IntegerField(BaseField):
+        """Int field."""
+
         def to_json(self):
+            """Convert to json."""
             return json.dumps({"value": int(self.value)})
 
         @classmethod
         def from_json(cls, jsonstr):
+            """Restore from json."""
             return cls(**list(json.loads(jsonstr).values())[0])
 
     class StringField(BaseField):
+        """Str field."""
+
         def to_json(self):
+            """Convert to JSON."""
             return json.dumps({"value": str(self.value)})
 
         @classmethod
         def from_json(cls, jsonstr):
+            """Restore from JSON."""
             return cls(**list(json.loads(jsonstr).values())[0])
 
     name = omm.MapField(
@@ -235,6 +257,7 @@ class ArrayMapTestSchema(omm.Mapper):
 
         Parameters:
             type_dict: Set True if the data is expected to be typed as dict.
+
         """
         class ObjectClass(object):
 
@@ -289,6 +312,7 @@ class ArrayMapTestSchemaWithClear(omm.Mapper):
 
         Parameters:
             type_dict: Set True if the data is expected to be typed as dict.
+
         """
         slen = 3
 
