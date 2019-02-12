@@ -3,37 +3,54 @@
 """Setup script."""
 
 import sys
+from os import path
 from setuptools import setup, find_packages
 
 dependencies = ["six==1.10.0"]
+name = "OMM"
 desc = "Object Model Mapper for Python-based web apps and/or APIs"
+license = "MIT"
+url = "https://github.com/hiroaki-yamamoto/omm.git"
+keywords = "json OMM Object Model Mapper Relational Document"
 version = "1.0.0"
-if sys.version_info < (2, 7):
-    raise RuntimeError("Not supported on earlier then python 2.7.")
+
+category = [
+    "Programming Language :: Python :: 2",
+    "Programming Language :: Python :: 3"
+]
+
+version_file = path.join(path.abspath(path.dirname(__file__)), "VERSION")
+
+if path.exists(version_file):
+    with open(version_file) as v:
+        version = v.read()
+
+author = "Hiroaki Yamamoto"
+author_email = "hiroaki@hysoftware.net"
+
+if sys.version_info < (3, 6):
+    raise RuntimeError("Not supported on earlier then python 3.6.")
 
 try:
-    with open('README.rst') as readme:
+    with open('README.md') as readme:
         long_desc = readme.read()
 except Exception:
     long_desc = None
 
 setup(
-    name="OMM",
+    name=name,
     version=version,
     description=desc,
     long_description=long_desc,
+    long_description_content_type="text/markdown",
     packages=find_packages(exclude=["tests"]),
+    include_package_data=True,
     install_requires=dependencies,
     zip_safe=False,
-    author="Hiroaki Yamamoto",
-    author_email="hiroaki@hysoftware.net",
-    license="MIT",
-    keywords="json OMM Object Model Mapper Relational Document",
-    url="https://github.com/hiroaki-yamamoto/omm.git",
-    classifiers=[
-        "Development Status :: 5 - Production/Stable",
-        "License :: OSI Approved :: MIT License",
-        "Programming Language :: Python :: 2.7",
-        "Programming Language :: Python :: 3.5"
-    ]
+    author=author,
+    author_email=author_email,
+    license=license,
+    keywords=keywords,
+    url=url,
+    classifiers=category
 )

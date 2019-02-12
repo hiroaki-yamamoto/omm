@@ -1,13 +1,13 @@
 language: python
 python:
-  - 3.5
+  - 3.7
 sudo: false
 cache: "pip"
 install:
   - "pip install -r requirements.txt"
 script:
-  - "tox"
+  - "tox -p all"
 after_success:
   - "coverage erase"
-  - "coverage combine python27.coverage python35.coverage"
+  - "coverage combine"
   - "coveralls"
