@@ -2,6 +2,7 @@
 
 [![CircleCI]][CircleCI Link]
 [![Maintainability]][Maintainability Link]
+[![Test Coverage]][Test Coverage Link]
 [![PyPI version]][PyPI link]
 
 [Coverage Status]: https://coveralls.io/repos/github/hiroaki-yamamoto/omm/badge.svg?branch=master
@@ -10,6 +11,8 @@
 [CircleCI Link]: https://circleci.com/gh/hiroaki-yamamoto/omm
 [Maintainability]: https://api.codeclimate.com/v1/badges/73d2a6e16877ee2855a7/maintainability
 [Maintainability Link]: https://codeclimate.com/github/hiroaki-yamamoto/omm/maintainability
+[Test Coverage]: https://api.codeclimate.com/v1/badges/73d2a6e16877ee2855a7/test_coverage
+[Test Coverage Link]: https://codeclimate.com/github/hiroaki-yamamoto/omm/test_coverage
 [PyPI version]: https://badge.fury.io/py/OMM.svg
 [PyPI link]: https://badge.fury.io/py/OMM
 
