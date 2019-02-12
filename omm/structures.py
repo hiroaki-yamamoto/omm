@@ -30,22 +30,22 @@ class ConDict(UserDict):
         """Return current model."""
         return self.__model
 
+    def __get_key(self, name):
+        """Get key."""
+        key = name
+        if isinstance(key, MapField):
+            index = list(self.model.fields.values()).index(key)
+            key = list(self.model.fields.keys())[index]
+        return key
+
     def __iter__(self):
         """Return iterable."""
         return iter(self.data)
 
     def __getitem__(self, name):
         """Get Item."""
-        key = name
-        if isinstance(key, MapField):
-            index = list(self.model.fields.values()).index(key)
-            key = list(self.model.fields.keys())[index]
-        return self.data[key]
+        return self.data[self.__get_key(name)]
 
     def __contains__(self, item):
         """Check if item exists."""
-        key = item
-        if isinstance(key, MapField):
-            index = list(self.model.fields.values()).index(key)
-            key = list(self.model.fields.keys())[index]
-        return key in self.data
+        return self.__get_key(item) in self.data
