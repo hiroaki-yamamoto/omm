@@ -19,6 +19,6 @@
   "devDependencies": {
     "gulp": "^4.0.0",
     "q": "^1.4.1",
-    "rimraf": "^2.5.3"
+    "rimraf": "^3.0.0"
   }
 }
