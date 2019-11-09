@@ -6,7 +6,7 @@ import sys
 from os import path
 from setuptools import setup, find_packages
 
-dependencies = ["six==1.12.0"]
+dependencies = ["six==1.13.0"]
 name = "OMM"
 desc = "Object Model Mapper for Python-based web apps and/or APIs"
 license = "MIT"
