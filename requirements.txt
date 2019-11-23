@@ -17,7 +17,7 @@ flake8==3.7.9
 idna==2.8                 # via requests
 importlib-metadata==0.23  # via pluggy
 mccabe==0.6.1             # via flake8
-pluggy==0.13.0            # via tox
+pluggy==0.13.1            # via tox
 py==1.8.0                 # via tox
 pycodestyle==2.5.0        # via flake8
 pydocstyle==4.0.1         # via flake8-docstrings
@@ -28,5 +28,5 @@ snowballstemmer==2.0.0    # via pydocstyle
 toml==0.10.0              # via tox
 tox==3.14.1
 urllib3==1.25.7           # via requests
-virtualenv==16.7.7        # via tox
+virtualenv==16.7.8        # via tox
 zipp==0.6.0               # via importlib-metadata
