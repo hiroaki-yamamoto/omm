@@ -4,7 +4,7 @@
 #
 #    pip-compile
 #
-certifi==2019.9.11         # via requests
+certifi==2019.11.28         # via requests
 chardet==3.0.4            # via requests
 coverage==4.5.4
 coveralls==1.8.2
