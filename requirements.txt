@@ -15,7 +15,7 @@ flake8-docstrings==1.5.0
 flake8-polyfill==1.0.2    # via flake8-docstrings
 flake8==3.7.9
 idna==2.8                 # via requests
-importlib-metadata==0.23  # via pluggy
+importlib-metadata==1.1.0  # via pluggy
 mccabe==0.6.1             # via flake8
 pluggy==0.13.1            # via tox
 py==1.8.0                 # via tox
