@@ -18,11 +18,11 @@ idna==2.9                 # via requests
 importlib-metadata==1.6.1  # via pluggy
 mccabe==0.6.1             # via flake8
 pluggy==0.13.1            # via tox
-py==1.8.1                 # via tox
+py==1.8.2                 # via tox
 pycodestyle==2.6.0        # via flake8
 pydocstyle==5.0.2         # via flake8-docstrings
 pyflakes==2.2.0           # via flake8
-requests==2.23.0          # via coveralls
+requests==2.24.0          # via coveralls
 six==1.15.0               # via pydocstyle, tox
 snowballstemmer==2.0.0    # via pydocstyle
 toml==0.10.1              # via tox
